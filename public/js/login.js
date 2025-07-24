@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Usamos una ruta absoluta desde la raíz del servidor para asegurar
         // que la llamada a la API siempre sea correcta, sin importar
         // en qué archivo HTML estemos.
-        const apiUrl = '/multi-sucursal/login';
+        const apiUrl = `${BASE_URL}/login`;
 
         fetch(apiUrl, {
             method: 'POST',
