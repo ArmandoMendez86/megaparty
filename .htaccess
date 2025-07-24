@@ -1,0 +1,34 @@
+# Archivo: /.htaccess (en la raíz de tu proyecto 'multi-sucursal')
+
+# Activa el motor de reescritura de URLs de Apache
+RewriteEngine On
+
+# ----------------------------------------------------------------------
+# ¡ESTA ES LA LÍNEA CORREGIDA!
+# Establece la base de la URL para las reglas de reescritura.
+# Debe coincidir con el nombre de la carpeta de tu proyecto.
+RewriteBase /multi-sucursal/
+# ----------------------------------------------------------------------
+
+
+# Regla 1: Si la solicitud NO es para un archivo o directorio existente,
+# la envía a nuestro controlador principal en la carpeta public.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php?action=$1 [L,QSA]
+
+
+# ----------------------------------------------------------------------
+# SEGURIDAD ADICIONAL
+# ----------------------------------------------------------------------
+
+# Previene el listado de directorios si no se encuentra un index.
+Options -Indexes
+
+# Bloquea el acceso directo a archivos sensibles
+<Files ".htaccess">
+    Require all denied
+</Files>
+<Files "config/Database.php">
+    Require all denied
+</Files>
