@@ -7,7 +7,8 @@ RewriteEngine On
 # ¡ESTA ES LA LÍNEA CORREGIDA!
 # Establece la base de la URL para las reglas de reescritura.
 # Debe coincidir con el nombre de la carpeta de tu proyecto.
-RewriteBase /multi-sucursal/
+# RewriteBase /multi-sucursal/
+RewriteBase /
 # ----------------------------------------------------------------------
 
 
