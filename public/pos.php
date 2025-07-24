@@ -44,28 +44,30 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       background: #718096;
     }
 
-    /* Modificación para que los productos se muestren en filas flexibles */
-    .product-list-container { /* Nuevo contenedor para la lista de productos */
-      display: flex;
-      flex-direction: column; /* Apila los elementos verticalmente */
-      gap: 0.5rem; /* Espacio entre las tarjetas de producto */
-      padding: 0.25rem; /* Pequeño padding para el contenedor */
-      overflow-y: auto; /* Mantener el scroll vertical si hay muchos productos */
-      flex: 1; /* Ocupa el espacio disponible en altura */
+    /* Estilos para el grid de productos */
+    .product-grid {
+      display: grid;
+      /* Ajusta el número de columnas y el tamaño mínimo de las tarjetas */
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Ajustado para más elementos en una fila */
+      gap: 0.75rem; /* Espacio entre las tarjetas */
+      padding: 0.25rem;
+      overflow-y: auto;
+      flex: 1;
     }
 
     .product-card {
       background-color: #1e293b;
       padding: 0.75rem;
       border-radius: 0.75rem;
+      text-align: center; /* Centra el contenido en la tarjeta */
       cursor: pointer;
       transition: all 0.2s ease-in-out;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       border: 1px solid #334155;
-      display: flex; /* Cambiado a flex para diseño de fila */
-      align-items: center; /* Centra verticalmente los elementos en la fila */
-      width: 100%; /* Ocupa todo el ancho disponible */
-      min-height: 80px; /* Altura mínima para cada fila de producto */
+      display: flex; /* Usa flexbox para organizar el contenido verticalmente */
+      flex-direction: column;
+      justify-content: space-between; /* Distribuye el espacio entre los elementos */
+      height: 100%; /* Asegura que todas las tarjetas tengan la misma altura en una fila */
     }
 
     .product-card:hover {
@@ -75,33 +77,23 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
     }
 
     .product-card-image {
-      width: 60px; /* Tamaño de imagen ajustado para la fila */
-      height: 60px; /* Tamaño de imagen ajustado para la fila */
+      width: 70px; /* Tamaño de imagen fijo */
+      height: 70px; /* Tamaño de imagen fijo */
       object-fit: cover;
       border-radius: 0.5rem;
-      margin-right: 0.75rem; /* Espacio a la derecha de la imagen */
+      margin: 0 auto 0.5rem auto; /* Centra la imagen y añade margen inferior */
       border: 1px solid #4a5568;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      flex-shrink: 0; /* Evita que la imagen se encoja */
-    }
-
-    .product-card-info { /* Nuevo contenedor para la información del producto */
-      flex-grow: 1; /* Permite que la información ocupe el espacio restante */
-      text-align: left; /* Alinea el texto a la izquierda */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
     }
 
     .product-card-name {
       font-weight: bold;
       color: white;
-      font-size: 0.9rem; /* Ajustado para la fila */
+      font-size: 0.875rem; /* text-sm */
       margin-bottom: 0.2rem;
-      white-space: nowrap; /* Evita que el nombre se rompa */
-      overflow: hidden; /* Oculta el texto que se desborda */
-      text-overflow: ellipsis; /* Añade puntos suspensivos */
-      max-width: 100%; /* Asegura que no se desborde */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .product-card-stock {
@@ -111,8 +103,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
     }
 
     .product-card-price {
-      font-size: 1.1rem; /* text-lg */
-      font-family: "Inter", monospace; /* font-mono */
+      font-size: 1.125rem; /* text-lg */
+      font-family: "Inter", monospace;
       color: #4ade80; /* green-400 */
       font-weight: bold;
     }
@@ -358,8 +350,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         max-width: none; /* Elimina límites de ancho fijo */
       }
 
-      .product-card { /* Asegura que la tarjeta ocupe el 100% del ancho en pantallas más pequeñas */
-        width: 100%;
+      .product-grid { /* Ajusta el tamaño de las tarjetas de producto en pantallas más pequeñas */
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Más pequeñas para móviles */
       }
     }
 
@@ -387,7 +379,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       </div>
       <div
         id="product-list"
-        class="product-list-container"></div> <!-- Changed from product-grid to product-list-container -->
+        class="product-grid"></div> <!-- Changed from product-list-container to product-grid -->
     </div>
 
     <div class="lg:w-1/2 w-full bg-[#1e293b] flex flex-col p-4 shadow-lg"> <!-- Changed lg:w-2/5 to lg:w-1/2 -->

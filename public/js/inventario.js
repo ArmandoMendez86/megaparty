@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const adjustCurrentStockDisplay = document.getElementById('adjust-current-stock-display');
     const adjustQuantityInput = document.getElementById('adjust-quantity');
     const adjustStockReasonInput = document.getElementById('adjust-stock-reason');
-    
+    const adjustQuantityLabel = document.getElementById('adjust-quantity-label'); // <--- Solución: Añadida esta referencia
+
     const inventoryHistoryBody = document.getElementById('inventory-history-body');
 
     let allProducts = [];
@@ -59,12 +60,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- INICIO: Nuevas funciones para Clonar ---
 
     /**
-     * Puebla el selector de productos para la función de clonar.
+     * Populates the product selector for the cloning function.
      */
     function populateCloneSelect() {
         cloneSourceProductSelect.innerHTML = '<option value="" disabled selected>Selecciona un producto...</option>';
         if (allProducts && allProducts.length > 0) {
-            // Ordenar productos alfabéticamente para el selector
+            // Sort products alphabetically for the selector
             const sortedProducts = [...allProducts].sort((a, b) => a.nombre.localeCompare(b.nombre));
             sortedProducts.forEach(product => {
                 const option = document.createElement('option');
@@ -76,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Carga los datos de un producto seleccionado en el formulario para clonarlo.
+     * Loads the data of a selected product into the form for cloning.
      */
     async function handleCloneProduct() {
         const sourceId = cloneSourceProductSelect.value;
@@ -86,14 +87,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            // Usamos el endpoint existente para obtener todos los datos del producto
+            // We use the existing endpoint to get all product data
             const response = await fetch(`${BASE_URL}/getProduct?id=${sourceId}`);
             const result = await response.json();
 
             if (result.success) {
                 const product = result.data;
                 
-                // Poblar el formulario con los datos del producto base
+                // Populate the form with the base product data
                 document.getElementById('nombre').value = `${product.nombre} (Copia)`;
                 document.getElementById('id_categoria').value = product.id_categoria;
                 document.getElementById('id_marca').value = product.id_marca;
@@ -102,11 +103,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('stock_minimo').value = product.stock_minimo;
                 document.getElementById('descripcion').value = product.descripcion;
 
-                // IMPORTANTE: Limpiar campos que deben ser únicos o reiniciarse
-                document.getElementById('product-id').value = ''; // Esto asegura que se cree un NUEVO producto
-                document.getElementById('sku').value = ''; // El usuario debe ingresar un nuevo SKU
-                document.getElementById('codigo_barras').value = ''; // El usuario debe ingresar un nuevo código de barras si aplica
-                document.getElementById('stock').value = 0; // Los productos nuevos/clonados inician con stock 0
+                // IMPORTANT: Clear fields that must be unique or reset
+                document.getElementById('product-id').value = ''; // This ensures a NEW product is created
+                document.getElementById('sku').value = ''; // User must enter a new SKU
+                document.getElementById('codigo_barras').value = ''; // User must enter a new barcode if applicable
+                document.getElementById('stock').value = 0; // New/cloned products start with 0 stock
 
                 modalTitle.innerHTML = `<i class="fas fa-copy mr-3"></i>Clonando: ${product.nombre}`;
                 showToast('Datos cargados. Modifica los campos necesarios y guarda.', 'info');
@@ -194,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     async function handleEditProduct(id) {
-        // Ocultar la sección de clonar cuando se está editando
+        // Hide the clone section when editing
         cloneSection.classList.add('hidden');
 
         try {

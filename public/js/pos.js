@@ -187,14 +187,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     </span>
                 </p>
             </div>
-            <div class="flex items-center ml-4">
+            <div class="flex items-center ml-2"> <!-- Adjusted ml-4 to ml-2 -->
                 <div class="quantity-controls">
                     <button data-id="${item.id}" class="quantity-change" data-action="decrease">-</button>
                     <span>${item.quantity}</span>
                     <button data-id="${item.id}" class="quantity-change" data-action="increase">+</button>
                 </div>
-                <div class="text-right font-mono text-base ml-4">$${(item.quantity * item.precio_final).toFixed(2)}</div>
-                <button data-id="${item.id}" class="remove-item-btn text-red-400 hover:text-red-300 p-2 ml-2 rounded-full">
+                <div class="text-right font-mono text-base ml-2">$${(item.quantity * item.precio_final).toFixed(2)}</div> <!-- Adjusted ml-4 to ml-2 -->
+                <button data-id="${item.id}" class="remove-item-btn text-red-400 hover:text-red-300 p-1 ml-1 rounded-full"> <!-- Adjusted padding and margin -->
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
@@ -966,6 +966,24 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       false
     );
+
+    // Update Select2 to show the loaded client
+    // Create a new Option element for Select2
+    const clientOption = new Option(selectedClient.nombre, selectedClient.id, true, true);
+    // Append it to the select and trigger change to update Select2's display
+    searchClientSelect.append(clientOption).trigger('change');
+    // Manually trigger the select2:select event to ensure all associated logic is run
+    // (though selectClient already handles most of this)
+    searchClientSelect.trigger({
+        type: 'select2:select',
+        params: {
+            data: {
+                id: selectedClient.id,
+                text: selectedClient.nombre,
+                original: selectedClient // Pass the full selectedClient object
+            }
+        }
+    });
 
     if (saleData.header.id_direccion_envio) {
       addressSelect.value = saleData.header.id_direccion_envio;
