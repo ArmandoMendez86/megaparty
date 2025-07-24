@@ -13,8 +13,8 @@ class Database
 
     //Hostinger
     private $host = 'localhost';
-    private $db_name = 'u916760597_multisucursal';
-    private $username = 'u916760597_multisucursal';
+    private $db_name = 'u916760597_megaparty';
+    private $username = 'u916760597_megaparty';
     private $password = 'Ingeniero861215#-';
     private $conn;
 
