@@ -48,7 +48,7 @@
         </form>
     </div>
 
-    <!-- --- LÍNEA CORREGIDA --- -->
+    <script src="js/rutas.js"></script>
     <script src="js/login.js"></script>
 </body>
 </html>
