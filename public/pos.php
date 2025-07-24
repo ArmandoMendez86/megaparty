@@ -44,11 +44,133 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       background: #718096;
     }
 
-    .product-grid {
-      display: grid;
-      /* Adjusted minmax for slightly smaller cards */
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    /* Modificación para que los productos se muestren en filas flexibles */
+    .product-list-container { /* Nuevo contenedor para la lista de productos */
+      display: flex;
+      flex-direction: column; /* Apila los elementos verticalmente */
+      gap: 0.5rem; /* Espacio entre las tarjetas de producto */
+      padding: 0.25rem; /* Pequeño padding para el contenedor */
+      overflow-y: auto; /* Mantener el scroll vertical si hay muchos productos */
+      flex: 1; /* Ocupa el espacio disponible en altura */
     }
+
+    .product-card {
+      background-color: #1e293b;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid #334155;
+      display: flex; /* Cambiado a flex para diseño de fila */
+      align-items: center; /* Centra verticalmente los elementos en la fila */
+      width: 100%; /* Ocupa todo el ancho disponible */
+      min-height: 80px; /* Altura mínima para cada fila de producto */
+    }
+
+    .product-card:hover {
+      background-color: #334155;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-card-image {
+      width: 60px; /* Tamaño de imagen ajustado para la fila */
+      height: 60px; /* Tamaño de imagen ajustado para la fila */
+      object-fit: cover;
+      border-radius: 0.5rem;
+      margin-right: 0.75rem; /* Espacio a la derecha de la imagen */
+      border: 1px solid #4a5568;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0; /* Evita que la imagen se encoja */
+    }
+
+    .product-card-info { /* Nuevo contenedor para la información del producto */
+      flex-grow: 1; /* Permite que la información ocupe el espacio restante */
+      text-align: left; /* Alinea el texto a la izquierda */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .product-card-name {
+      font-weight: bold;
+      color: white;
+      font-size: 0.9rem; /* Ajustado para la fila */
+      margin-bottom: 0.2rem;
+      white-space: nowrap; /* Evita que el nombre se rompa */
+      overflow: hidden; /* Oculta el texto que se desborda */
+      text-overflow: ellipsis; /* Añade puntos suspensivos */
+      max-width: 100%; /* Asegura que no se desborde */
+    }
+
+    .product-card-stock {
+      font-size: 0.75rem; /* text-xs */
+      color: #cbd5e1; /* gray-400 */
+      margin-bottom: 0.2rem;
+    }
+
+    .product-card-price {
+      font-size: 1.1rem; /* text-lg */
+      font-family: "Inter", monospace; /* font-mono */
+      color: #4ade80; /* green-400 */
+      font-weight: bold;
+    }
+
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      padding: 0.6rem; /* Reduced padding */
+      border-bottom: 1px solid #334155; /* Darker border for separation */
+      background-color: #1e293b; /* Slightly darker than main cart background */
+      border-radius: 0.5rem;
+      margin-bottom: 0.4rem; /* Reduced margin */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    .cart-item:hover {
+      background-color: #2d3748; /* Lighter on hover */
+    }
+
+    .cart-item-image {
+      width: 40px; /* Smaller image */
+      height: 40px; /* Smaller image */
+      object-fit: cover;
+      border-radius: 0.375rem;
+      margin-right: 0.5rem; /* Reduced margin */
+      border: 1px solid #4a5568;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.1rem; /* Reduced gap */
+      background-color: #334155;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+
+    .quantity-controls button {
+      padding: 0.2rem 0.5rem; /* Reduced padding */
+      background-color: #4a5568;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.2s;
+      font-size: 0.8rem; /* Smaller font size for buttons */
+    }
+
+    .quantity-controls button:hover {
+      background-color: #6b7280;
+    }
+
+    .quantity-controls span {
+      padding: 0.2rem 0.4rem; /* Reduced padding */
+      color: white;
+      font-size: 0.8rem; /* Smaller font size for quantity */
+    }
+
 
     .modal-overlay {
       background-color: rgba(0, 0, 0, 0.75);
@@ -236,11 +358,15 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         max-width: none; /* Elimina límites de ancho fijo */
       }
 
-      .product-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Ajusta el tamaño de las tarjetas de producto */
+      .product-card { /* Asegura que la tarjeta ocupe el 100% del ancho en pantallas más pequeñas */
+        width: 100%;
       }
     }
 
+    /* Ensure no horizontal scroll on the body */
+    body {
+      overflow-x: hidden;
+    }
   
   </style>
 </head>
@@ -250,8 +376,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
   <?php include_once '../parciales/navegacion.php'; ?>
 
-  <div class="flex-1 flex lg:flex-row flex-col">
-    <div class="lg:w-3/5 w-full flex flex-col p-4">
+  <div class="flex-1 flex lg:flex-row flex-col overflow-hidden"> <!-- Added overflow-hidden here -->
+    <div class="lg:w-1/2 w-full flex flex-col p-4"> <!-- Changed lg:w-3/5 to lg:w-1/2 -->
       <div class="mb-4">
         <input
           type="text"
@@ -261,10 +387,10 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       </div>
       <div
         id="product-list"
-        class="flex-1 overflow-y-auto product-grid gap-4 p-1"></div>
+        class="product-list-container"></div> <!-- Changed from product-grid to product-list-container -->
     </div>
 
-    <div class="lg:w-2/5 w-full bg-[#1e293b] flex flex-col p-4 shadow-lg">
+    <div class="lg:w-1/2 w-full bg-[#1e293b] flex flex-col p-4 shadow-lg"> <!-- Changed lg:w-2/5 to lg:w-1/2 -->
       
       <!-- Sección de Búsqueda de Artículos en el Carrito -->
       <div class="mb-4">
@@ -288,11 +414,17 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       <div class="py-4 space-y-2 border-b border-gray-700"> <!-- Added border-b for separation -->
         <div class="relative">
           <label class="block text-sm font-medium mb-1">Cliente</label>
-          <select
-            id="search-client"
-            class="w-full bg-gray-700 rounded-md p-2 border border-gray-600">
-            <option value="1" selected>Público en General</option>
-          </select>
+          <div class="flex gap-2">
+            <select
+              id="search-client"
+              class="w-full bg-gray-700 rounded-md p-2 border border-gray-600">
+              <option value="1" selected>Público en General</option>
+            </select>
+            <!-- Botón para añadir nuevo cliente -->
+            <button id="add-new-client-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-md text-sm flex items-center justify-center">
+              <i class="fas fa-user-plus"></i>
+            </button>
+          </div>
           <div id="selected-client" class="mt-2 text-sm">
             Cliente:
             <span class="font-semibold text-white">Público en General</span>
@@ -407,6 +539,60 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       </div>
     </div>
   </div>
+
+  <!-- Modal para Añadir Nuevo Cliente -->
+  <div id="add-client-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
+    <div class="bg-[#1e293b] rounded-lg shadow-xl w-full max-w-lg">
+      <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-white">Añadir Nuevo Cliente</h2>
+        <button id="close-add-client-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      </div>
+      <div class="p-6">
+        <form id="add-client-form" class="space-y-4">
+          <div>
+            <label for="client-name" class="block text-sm font-medium text-gray-300">Nombre del Cliente <span class="text-red-500">*</span></label>
+            <input type="text" id="client-name" name="nombre" required
+                   class="mt-1 block w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
+          </div>
+          <div>
+            <label for="client-rfc" class="block text-sm font-medium text-gray-300">RFC</label>
+            <input type="text" id="client-rfc" name="rfc"
+                   class="mt-1 block w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
+          </div>
+          <div>
+            <label for="client-phone" class="block text-sm font-medium text-gray-300">Teléfono</label>
+            <input type="tel" id="client-phone" name="telefono"
+                   class="mt-1 block w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
+          </div>
+          <div>
+            <label for="client-email" class="block text-sm font-medium text-gray-300">Email</label>
+            <input type="email" id="client-email" name="email"
+                   class="mt-1 block w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
+          </div>
+          <div class="flex items-center">
+            <input type="checkbox" id="client-has-credit" name="tiene_credito" value="1"
+                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded">
+            <label for="client-has-credit" class="ml-2 block text-sm text-gray-300">Tiene Crédito</label>
+          </div>
+          <div id="credit-limit-container" class="hidden">
+            <label for="client-credit-limit" class="block text-sm font-medium text-gray-300">Límite de Crédito</label>
+            <input type="number" step="0.01" id="client-credit-limit" name="limite_credito" value="0.00"
+                   class="mt-1 block w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
+          </div>
+          <!-- Puedes añadir campos para direcciones y precios especiales aquí si es necesario -->
+          <div class="flex justify-end space-x-4 pt-4">
+            <button type="button" id="cancel-add-client-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">
+              Cancelar
+            </button>
+            <button type="submit" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg">
+              Guardar Cliente
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div id="pending-sales-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
     <div class="bg-[#1e293b] rounded-lg shadow-xl w-full max-w-4xl">
       <div class="p-6 border-b border-gray-700 flex justify-between items-center">

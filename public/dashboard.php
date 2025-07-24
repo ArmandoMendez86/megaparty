@@ -59,7 +59,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
           <h3 class="text-gray-400 text-sm font-medium">
             Cuentas por Cobrar
           </h3>
-          <p class="text-3xl font-bold text-yellow-400 mt-2">$500.00</p>
+          <p class="text-3xl font-bold text-yellow-400 mt-2">$0.00</p>
         </div>
         <div class="bg-[#1e293b] p-6 rounded-lg">
           <h3 class="text-gray-400 text-sm font-medium">Gastos del Día</h3>

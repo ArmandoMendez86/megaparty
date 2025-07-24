@@ -49,6 +49,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const modalChangeRow = document.getElementById("modal-change-row");
   const modalPendingRow = document.getElementById("modal-pending-row");
 
+  // Elementos del modal de añadir cliente
+  const addClientModal = document.getElementById("add-client-modal");
+  const addNewClientBtn = document.getElementById("add-new-client-btn");
+  const closeAddClientModalBtn = document.getElementById("close-add-client-modal-btn");
+  const addClientForm = document.getElementById("add-client-form");
+  const cancelAddClientBtn = document.getElementById("cancel-add-client-btn");
+  const clientHasCreditCheckbox = document.getElementById("client-has-credit");
+  const creditLimitContainer = document.getElementById("credit-limit-container");
+
 
   if (typeof connectQz === "function") {
     connectQz();
@@ -111,17 +120,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     products.forEach((product) => {
       const productCard = document.createElement("div");
-      productCard.className =
-        "bg-[#1e293b] p-3 rounded-lg text-center cursor-pointer hover:bg-gray-700 transition-colors product-card";
+      productCard.className = "product-card"; // Using custom class for styling
       productCard.dataset.productId = product.id;
+      
+      // Placeholder image URL - replace with actual product image if available
+      const imageUrl = `https://placehold.co/100x100/334155/E2E8F0?text=${encodeURIComponent(product.nombre.substring(0, 8))}`;
+
       productCard.innerHTML = `
-          <div class="font-bold text-white text-xs truncate">${ // Changed text-sm to text-xs
-            product.nombre
-          }</div>
-          <div class="text-xxs text-gray-400">Stock: ${product.stock || 0}</div> <!-- Changed text-xs to text-xxs -->
-          <div class="text-base font-mono text-green-400 mt-1">$${parseFloat( // Changed text-lg to text-base
-            product.precio_menudeo
-          ).toFixed(2)}</div>
+          <img src="${imageUrl}" alt="${product.nombre}" class="product-card-image">
+          <div class="flex-1 flex flex-col justify-between">
+            <div class="font-bold text-white text-sm mb-1 truncate">${product.nombre}</div>
+            <div class="text-xs text-gray-400 mb-2">Stock: ${product.stock || 0}</div>
+            <div class="text-lg font-mono text-green-400">$${parseFloat(product.precio_menudeo).toFixed(2)}</div>
+          </div>
       `;
       productCard.addEventListener("click", () => addProductToCart(product.id));
       productListContainer.appendChild(productCard);
@@ -145,50 +156,48 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       filteredCart.forEach((item) => {
         const cartItem = document.createElement("div");
-        cartItem.className =
-          "flex justify-between items-center p-2 border-b border-gray-700";
+        cartItem.className = "cart-item"; // Using custom class for styling
+
+        // Placeholder image URL for cart items
+        const imageUrl = `https://placehold.co/50x50/334155/E2E8F0?text=${encodeURIComponent(item.nombre.substring(0, 5))}`;
 
         let priceTypeLabel = "";
         if (item.tipo_precio_aplicado === "Especial") {
           priceTypeLabel =
-            '<span class="text-xxs text-yellow-400">Especial</span> '; // Changed text-xs to text-xxs
+            '<span class="text-xxs text-yellow-400">Especial</span> ';
         } else if (item.tipo_precio_aplicado === "Guardado") {
           priceTypeLabel =
-            '<span class="text-xxs text-yellow-400">Guardado</span> '; // Changed text-xs to text-xxs
+            '<span class="text-xxs text-yellow-400">Guardado</span> ';
         } else if (item.tipo_precio_aplicado === "Mayoreo") {
           priceTypeLabel =
-            '<span class="text-xxs text-blue-400">Mayoreo</span> '; // Changed text-xs to text-xxs
+            '<span class="text-xxs text-blue-400">Mayoreo</span> ';
         } else if (item.tipo_precio_aplicado === "Menudeo") {
           priceTypeLabel =
-            '<span class="text-xxs text-green-400">Menudeo</span> '; // Changed text-xs to text-xxs
+            '<span class="text-xxs text-green-400">Menudeo</span> ';
         }
 
         cartItem.innerHTML = `
-            <div class="w-1/2">
-                <p class="text-sm font-semibold text-white truncate">${
-                  item.nombre
-                }</p>
+            <img src="${imageUrl}" alt="${item.nombre}" class="cart-item-image">
+            <div class="flex-1">
+                <p class="text-sm font-semibold text-white truncate">${item.nombre}</p>
                 <p class="text-xs text-gray-400">
                     ${priceTypeLabel}
-                    <span class="editable-price" data-id="${
-                      item.id
-                    }" data-price="${item.precio_final}">
+                    <span class="editable-price" data-id="${item.id}" data-price="${item.precio_final}">
                         $${parseFloat(item.precio_final).toFixed(2)}
                     </span>
                 </p>
             </div>
-            <div class="w-1/4 flex items-center justify-center">
-                <button data-id="${
-                  item.id
-                }" class="quantity-change text-lg px-2">-</button>
-                <span class="px-2 text-sm">${item.quantity}</span>
-                <button data-id="${
-                  item.id
-                }" class="quantity-change text-lg px-2">+</button>
+            <div class="flex items-center ml-4">
+                <div class="quantity-controls">
+                    <button data-id="${item.id}" class="quantity-change" data-action="decrease">-</button>
+                    <span>${item.quantity}</span>
+                    <button data-id="${item.id}" class="quantity-change" data-action="increase">+</button>
+                </div>
+                <div class="text-right font-mono text-base ml-4">$${(item.quantity * item.precio_final).toFixed(2)}</div>
+                <button data-id="${item.id}" class="remove-item-btn text-red-400 hover:text-red-300 p-2 ml-2 rounded-full">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
-            <div class="w-1/4 text-right font-mono text-sm">$${(
-              item.quantity * item.precio_final
-            ).toFixed(2)}</div>
         `;
         cartItemsContainer.appendChild(cartItem);
       });
@@ -367,10 +376,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const button = event.target.closest(".quantity-change");
     if (!button) return;
     const productId = button.dataset.id;
+    const action = button.dataset.action; // Get the action from data-action
     const cartItem = cart.find((item) => item.id == productId);
     if (!cartItem) return;
 
-    if (button.textContent === "+") {
+    if (action === "increase") {
       const product = allProducts.find((p) => p.id == productId);
       if (product && cartItem.quantity < product.stock) {
         cartItem.quantity++;
@@ -382,12 +392,18 @@ document.addEventListener("DOMContentLoaded", function () {
           "error"
         );
       }
-    } else {
+    } else if (action === "decrease") {
       cartItem.quantity--;
       if (cartItem.quantity === 0)
         cart = cart.filter((item) => item.id != productId);
     }
     renderCart();
+  }
+
+  function removeProductFromCart(productId) {
+    cart = cart.filter((item) => item.id != productId);
+    renderCart();
+    showToast("Producto eliminado del carrito.", "info");
   }
 
   async function selectClient(client, confirmAction = true) {
@@ -496,14 +512,18 @@ document.addEventListener("DOMContentLoaded", function () {
             const currentNonCreditPaid = getCurrentNonCreditPaidAmount(amountInput); // Get paid amount excluding current credit input
             const remainingToPay = totalToPay - currentNonCreditPaid;
             
-            if (selectedClient.id === 1 || selectedClient.tiene_credito === 0) {
-                showToast("El cliente 'Público en General' o sin crédito no puede usar este método.", "error");
+            if (selectedClient.id === 1) {
+                showToast("El crédito no se aplica al cliente 'Público en General'. Por favor, selecciona otro método de pago o un cliente registrado.", "error");
+                amountInput.value = (0).toFixed(2); // Reset amount
+                methodSelect.value = 'Efectivo'; // Revert to default
+            } else if (selectedClient.tiene_credito === 0) {
+                showToast(`El cliente '${selectedClient.nombre}' no tiene una línea de crédito activada.`, "error");
                 amountInput.value = (0).toFixed(2); // Reset amount
                 methodSelect.value = 'Efectivo'; // Revert to default
             } else {
                 const availableCredit = selectedClient.limite_credito - selectedClient.deuda_actual;
                 if (availableCredit <= 0) {
-                    showToast("El cliente no tiene crédito disponible.", "error");
+                    showToast(`El cliente '${selectedClient.nombre}' no tiene crédito disponible. Deuda actual: $${selectedClient.deuda_actual.toFixed(2)} / Límite: $${selectedClient.limite_credito.toFixed(2)}`, "error");
                     amountInput.value = (0).toFixed(2); // Reset amount
                     methodSelect.value = 'Efectivo'; // Revert to default
                 } else {
@@ -552,6 +572,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let creditAmount = 0;
     let hasCreditPayment = false;
     let creditExceeded = false;
+    let creditNotAllowed = false; // New flag for "Público en General" or no credit enabled
 
     paymentInputs = []; // Clear and re-populate to ensure only active inputs are tracked
     document.querySelectorAll('.payment-input-row').forEach(row => {
@@ -565,8 +586,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (methodSelect.value === 'Crédito') {
             hasCreditPayment = true;
             creditAmount += amount;
-            if (selectedClient.id === 1 || selectedClient.tiene_credito === 0) {
-                creditExceeded = true; // Cannot use credit if not enabled or default client
+            if (selectedClient.id === 1) {
+                creditNotAllowed = true; // "Público en General" cannot use credit
+            } else if (selectedClient.tiene_credito === 0) {
+                creditNotAllowed = true; // Client has no credit enabled
             } else {
                 const availableCredit = selectedClient.limite_credito - selectedClient.deuda_actual;
                 if (creditAmount > availableCredit) {
@@ -593,14 +616,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Enable/Disable confirm button
-    modalConfirmBtn.disabled = (totalPaid < totalToPay) || creditExceeded;
+    modalConfirmBtn.disabled = (totalPaid < totalToPay) || creditExceeded || creditNotAllowed;
 
-    if (modalConfirmBtn.disabled && hasCreditPayment && creditExceeded) {
-        if (selectedClient.id === 1 || selectedClient.tiene_credito === 0) {
-            showToast("Error: El cliente 'Público en General' o sin crédito no puede usar este método.", "error");
-        } else {
+    if (modalConfirmBtn.disabled && hasCreditPayment) {
+        if (creditNotAllowed) {
+            if (selectedClient.id === 1) {
+                showToast("El crédito no se aplica al cliente 'Público en General'.", "error");
+            } else {
+                showToast(`El cliente '${selectedClient.nombre}' no tiene una línea de crédito activada.`, "error");
+            }
+        } else if (creditExceeded) {
             const availableCredit = selectedClient.limite_credito - selectedClient.deuda_actual;
-            showToast(`Crédito insuficiente. Disponible: $${Math.max(0, availableCredit).toFixed(2)}`, "error");
+            showToast(`Crédito insuficiente para '${selectedClient.nombre}'. Disponible: $${Math.max(0, availableCredit).toFixed(2)}`, "error");
         }
     }
   }
@@ -647,13 +674,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (creditPaymentAmount > 0) {
-        if (selectedClient.id === 1 || selectedClient.tiene_credito === 0) {
-            showToast("Error: El cliente 'Público en General' o sin crédito no puede usar este método.", "error");
+        if (selectedClient.id === 1) {
+            showToast("Error: El crédito no se aplica al cliente 'Público en General'. Por favor, selecciona otro método de pago o un cliente registrado.", "error");
+            return;
+        }
+        if (selectedClient.tiene_credito === 0) {
+            showToast(`Error: El cliente '${selectedClient.nombre}' no tiene una línea de crédito activada.`, "error");
             return;
         }
         const availableCredit = selectedClient.limite_credito - selectedClient.deuda_actual;
         if (creditPaymentAmount > availableCredit) {
-            showToast(`Error: El monto de crédito excede el disponible. Disponible: $${availableCredit.toFixed(2)}`, "error");
+            showToast(`Error: El monto de crédito excede el disponible para '${selectedClient.nombre}'. Disponible: $${availableCredit.toFixed(2)}`, "error");
             return;
         }
     }
@@ -984,10 +1015,97 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // --- Lógica para Añadir Nuevo Cliente ---
+  function showAddClientModal() {
+    addClientModal.classList.remove("hidden");
+    // Reset form fields
+    addClientForm.reset();
+    creditLimitContainer.classList.add("hidden"); // Hide credit limit initially
+  }
+
+  function hideAddClientModal() {
+    addClientModal.classList.add("hidden");
+  }
+
+  async function handleAddNewClient(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const formData = new FormData(addClientForm);
+    const clientData = {};
+    for (const [key, value] of formData.entries()) {
+      clientData[key] = value;
+    }
+
+    // Convert 'tiene_credito' to boolean/integer
+    clientData.tiene_credito = clientHasCreditCheckbox.checked ? 1 : 0;
+    // Ensure credit limit is a float
+    clientData.limite_credito = parseFloat(clientData.limite_credito) || 0.00;
+
+    try {
+      const response = await fetch(`${BASE_URL}/createClient`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(clientData),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        showToast("Cliente añadido exitosamente.", "success");
+        hideAddClientModal();
+        // After successful creation, select the new client in Select2
+        // First, ensure Select2 is aware of the new client.
+        // This might involve re-fetching the client list or manually adding the option.
+        // For simplicity, we'll just trigger a search and select it.
+        const newClient = { id: result.id, text: clientData.nombre, original: { id: result.id, nombre: clientData.nombre, tiene_credito: clientData.tiene_credito, limite_credito: clientData.limite_credito, deuda_actual: 0.00 } };
+        
+        // Add the new client to Select2's internal data if it's not already there
+        // This is a bit of a hack, but Select2 doesn't have a direct 'add option' API post-init
+        const option = new Option(newClient.text, newClient.id, true, true);
+        searchClientSelect.append(option).trigger('change');
+        
+        // Manually trigger the select2:select event to update selectedClient
+        searchClientSelect.trigger({
+            type: 'select2:select',
+            params: {
+                data: newClient
+            }
+        });
+
+      } else {
+        showToast(`Error al añadir cliente: ${result.message}`, "error");
+      }
+    } catch (error) {
+      console.error("Error al añadir cliente:", error);
+      showToast("Error de conexión al añadir el cliente.", "error");
+    }
+  }
+
+  // Toggle credit limit input visibility
+  clientHasCreditCheckbox.addEventListener("change", function() {
+    if (this.checked) {
+      creditLimitContainer.classList.remove("hidden");
+    } else {
+      creditLimitContainer.classList.add("hidden");
+    }
+  });
+
+
   // --- Asignación de Eventos ---
   searchProductInput.addEventListener("input", filterProducts);
   searchProductInput.addEventListener("keydown", handleBarcodeScan);
-  cartItemsContainer.addEventListener("click", handleQuantityChange);
+  
+  // Delegar eventos para botones de cantidad y eliminar en el carrito
+  cartItemsContainer.addEventListener("click", function(event) {
+    const quantityButton = event.target.closest(".quantity-change");
+    const removeButton = event.target.closest(".remove-item-btn");
+
+    if (quantityButton) {
+      handleQuantityChange(event);
+    } else if (removeButton) {
+      removeProductFromCart(removeButton.dataset.id);
+    }
+  });
+
   cancelSaleBtn.addEventListener("click", cancelSale);
   chargeBtn.addEventListener("click", showChargeModal);
   saveSaleBtn.addEventListener("click", handleSaveSale);
@@ -1017,6 +1135,13 @@ document.addEventListener("DOMContentLoaded", function () {
       handleDeletePendingSale(deleteButton.dataset.id);
     }
   });
+
+  // Event listeners for Add Client Modal
+  addNewClientBtn.addEventListener("click", showAddClientModal);
+  closeAddClientModalBtn.addEventListener("click", hideAddClientModal);
+  cancelAddClientBtn.addEventListener("click", hideAddClientModal);
+  addClientForm.addEventListener("submit", handleAddNewClient);
+
 
   // --- Inicialización de Select2 para el cliente ---
   searchClientSelect.select2({
