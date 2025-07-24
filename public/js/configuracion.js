@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     async function fetchBranchConfig() {
         try {
-            const response = await fetch('/multi-sucursal/getBranchConfig');
+            const response = await fetch(`${BASE_URL}/getBranchConfig`);
             const result = await response.json();
 
             if (result.success) {
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const configData = Object.fromEntries(formData.entries());
 
         try {
-            const response = await fetch('/multi-sucursal/updateBranchConfig', {
+            const response = await fetch(`${BASE_URL}/updateBranchConfig`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(configData)

@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchExpenses() {
         expensesTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500">Cargando gastos...</td></tr>`;
         try {
-            const response = await fetch('/multi-sucursal/getExpenses');
+            const response = await fetch(`${BASE_URL}/getExpenses`);
             const result = await response.json();
             renderExpenses(result.success ? result.data : []);
         } catch (error) {
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function handleEditExpense(id) {
         try {
-            const response = await fetch(`/multi-sucursal/getExpense?id=${id}`);
+            const response = await fetch(`${BASE_URL}/getExpense?id=${id}`);
             const result = await response.json();
             if (result.success) {
                 const expense = result.data;
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const confirmed = await showConfirm('¿Estás seguro de que quieres eliminar este gasto?');
         if (!confirmed) return;
         try {
-            const response = await fetch('/multi-sucursal/deleteExpense', {
+            const response = await fetch(`${BASE_URL}/deleteExpense`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: id })
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const expenseData = Object.fromEntries(formData.entries());
         const expenseId = expenseData.id;
 
-        const url = expenseId ? '/multi-sucursal/updateExpense' : '/multi-sucursal/createExpense';
+        const url = expenseId ? `${BASE_URL}/updateExpense` : `${BASE_URL}/createExpense`;
         
         try {
             const response = await fetch(url, {

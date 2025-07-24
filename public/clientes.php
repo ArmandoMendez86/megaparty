@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../parciales/verificar_sesion.php'; 
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>

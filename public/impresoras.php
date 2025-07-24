@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../parciales/verificar_sesion.php'; 
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -93,7 +96,7 @@
   <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2/qz-tray.min.js"></script>
   <script src="js/qz-tray-handler.js"></script>
- <!--  <script src="js/dashboard.js"></script> -->
+  <script src="js/rutas.js"></script>
   <script src="js/toast.js"></script>
   <script src="js/impresoras.js"></script>
 </body>

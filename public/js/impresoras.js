@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     async function fetchUserPrinter() {
         try {
-            const response = await fetch('/multi-sucursal/getPrinterConfig');
+            const response = await fetch(`${BASE_URL}/getPrinterConfig`);
             const result = await response.json();
             if (result.success) {
                 savedPrinter = result.data.impresora_tickets || '';
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(printerForm);
         const configData = Object.fromEntries(formData.entries());
         try {
-            const response = await fetch('/multi-sucursal/updatePrinterConfig', {
+            const response = await fetch(`${BASE_URL}/updatePrinterConfig`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(configData)

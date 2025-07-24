@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../parciales/verificar_sesion.php'; 
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -445,6 +448,7 @@
   <!-- Select2 JS -->
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+   <script src="js/rutas.js"></script>
   <script src="js/toast.js"></script>
   <script src="js/confirm.js"></script>
   <script src="js/pos.js"></script>

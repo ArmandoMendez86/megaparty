@@ -1,4 +1,6 @@
-
+<?php
+require_once __DIR__ . '/../parciales/verificar_sesion.php'; 
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -79,7 +81,7 @@
         </main>
     </div>
 
-    <!-- <script src="js/dashboard.js"></script> -->
+    <script src="js/rutas.js"></script>
     <script src="js/toast.js"></script>
     <script src="js/configuracion.js"></script>
 </body>

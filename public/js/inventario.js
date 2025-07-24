@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             // Usamos el endpoint existente para obtener todos los datos del producto
-            const response = await fetch(`/multi-sucursal/getProduct?id=${sourceId}`);
+            const response = await fetch(`${BASE_URL}/getProduct?id=${sourceId}`);
             const result = await response.json();
 
             if (result.success) {
@@ -137,8 +137,8 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchCatalogs() {
         try {
             const [catResponse, marcaResponse] = await Promise.all([
-                fetch('/multi-sucursal/getCategorias'),
-                fetch('/multi-sucursal/getMarcas')
+                fetch(`${BASE_URL}/getCategorias`),
+                fetch(`${BASE_URL}/getMarcas`)
             ]);
             const catResult = await catResponse.json();
             if (catResult.success) populateSelect(categoriaSelect, catResult.data, 'Selecciona una categoría');
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchProducts() {
         productsTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">Cargando productos...</td></tr>`;
         try {
-            const response = await fetch('/multi-sucursal/getProducts');
+            const response = await fetch(`${BASE_URL}/getProducts`);
             const result = await response.json();
             allProducts = result.success ? result.data : [];
             renderProducts(allProducts);
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cloneSection.classList.add('hidden');
 
         try {
-            const response = await fetch(`/multi-sucursal/getProduct?id=${id}`);
+            const response = await fetch(`${BASE_URL}/getProduct?id=${id}`);
             const result = await response.json();
             if (result.success) {
                 const product = result.data;
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!confirmed) return;
 
         try {
-            const response = await fetch('/multi-sucursal/deleteProduct', {
+            const response = await fetch(`${BASE_URL}/deleteProduct`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: id })
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const productData = Object.fromEntries(formData.entries());
         const productId = productData.id;
 
-        const url = productId ? '/multi-sucursal/updateProduct' : '/multi-sucursal/createProduct';
+        const url = productId ? `${BASE_URL}/updateProduct` : `${BASE_URL}/createProduct`;
         
         try {
             const response = await fetch(url, {
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!confirmed) return;
 
         try {
-            const response = await fetch('/multi-sucursal/adjustStock', {
+            const response = await fetch(`${BASE_URL}/adjustStock`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchInventoryMovements() {
         inventoryHistoryBody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-gray-500">Cargando historial...</td></tr>`;
         try {
-            const response = await fetch('/multi-sucursal/getInventoryMovements');
+            const response = await fetch(`${BASE_URL}/getInventoryMovements`);
             const result = await response.json();
             renderInventoryMovements(result.success ? result.data : []);
         } catch (error) {

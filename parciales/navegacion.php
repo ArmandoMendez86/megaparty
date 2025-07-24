@@ -1,4 +1,3 @@
-
 <!-- CSS MODIFICADO -->
 <style>
   .tooltip-container {
@@ -65,7 +64,7 @@
       <img src="img/logo.jpg" alt="Logo" class="rounded-full">
     </div>
     <h2 id="sucursal-nombre" class="text-xl font-semibold text-white nav-text">
-      Sucursal Centro
+      Mega Party Gdl
     </h2>
   </div>
 

@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- Lógica de la API ---
   async function fetchProducts() {
     try {
-      const response = await fetch("/multi-sucursal/getProducts");
+      const response = await fetch(`${BASE_URL}/getProducts`);
       const result = await response.json();
       if (result.success) {
         allProducts = result.data;
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function fetchPrinterConfig() {
     try {
-      const response = await fetch("/multi-sucursal/getPrinterConfig");
+      const response = await fetch(`${BASE_URL}/getPrinterConfig`);
       const result = await response.json();
       if (result.success && result.data.impresora_tickets) {
         configuredPrinter = result.data.impresora_tickets;
@@ -255,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (selectedClient.id !== 1) {
               try {
                 const response = await fetch(
-                  "/multi-sucursal/saveSpecialClientPrice",
+                  `${BASE_URL}/saveSpecialClientPrice`,
                   {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -337,7 +337,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       const response = await fetch(
-        `/multi-sucursal/getProductForPOS?id_producto=${productId}&id_cliente=${selectedClient.id}`
+        `${BASE_URL}/getProductForPOS?id_producto=${productId}&id_cliente=${selectedClient.id}`
       );
       const result = await response.json();
       if (result.success) {
@@ -403,7 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       // Fetch client details including credit info
-      const response = await fetch(`/multi-sucursal/getClient?id=${client.id}`);
+      const response = await fetch(`${BASE_URL}/getClient?id=${client.id}`);
       const result = await response.json();
       if (result.success) {
         selectedClient = result.data; // Update selectedClient with full data
@@ -674,7 +674,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     try {
-      const response = await fetch("/multi-sucursal/processSale", {
+      const response = await fetch(`${BASE_URL}/processSale`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(saleData),
@@ -727,7 +727,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     try {
-      const response = await fetch("/multi-sucursal/saveSale", {
+      const response = await fetch(`${BASE_URL}/saveSale`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(saleData),
@@ -778,7 +778,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       const response = await fetch(
-        `/multi-sucursal/getTicketDetails?id=${saleId}`
+        `${BASE_URL}/getTicketDetails?id=${saleId}`
       );
       const result = await response.json();
 
@@ -832,7 +832,7 @@ document.addEventListener("DOMContentLoaded", function () {
     pendingSalesTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500">Cargando...</td></tr>`;
     pendingSalesModal.classList.remove("hidden");
     try {
-      const response = await fetch("/multi-sucursal/listPendingSales");
+      const response = await fetch(`${BASE_URL}/listPendingSales`);
       const result = await response.json();
       if (result.success) {
         allPendingSales = result.data; // Store all pending sales
@@ -887,7 +887,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }" class="load-sale-btn" title="Cargar Venta">
                             <i class="fas fa-folder-open"></i>
                         </button>
-                        <a href="/multi-sucursal/generateQuote?id=${
+                        <a href="${BASE_URL}/generateQuote?id=${
                           sale.id
                         }" target="_blank" class="pdf-sale-btn" title="Ver Cotización PDF">
                             <i class="fas fa-file-pdf"></i>
@@ -913,7 +913,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!confirmed) return;
     }
     try {
-      const response = await fetch(`/multi-sucursal/loadSale?id=${saleId}`);
+      const response = await fetch(`${BASE_URL}/loadSale?id=${saleId}`);
       const result = await response.json();
       if (result.success) {
         loadSaleIntoPOS(result.data);
@@ -966,7 +966,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!confirmed) return;
 
     try {
-      const response = await fetch("/multi-sucursal/deletePendingSale", {
+      const response = await fetch(`${BASE_URL}/deletePendingSale`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id_venta: saleId }),
@@ -1034,7 +1034,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     },
     ajax: {
-      url: "/multi-sucursal/searchClients",
+      url: `${BASE_URL}/searchClients`,
       dataType: "json",
       delay: 250,
       data: function (params) {

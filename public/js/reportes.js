@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         reportTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500">Generando reporte...</td></tr>`;
         try {
-            const response = await fetch(`/multi-sucursal/getSalesReport?start=${startDate}&end=${endDate}`);
+            const response = await fetch(`${BASE_URL}/getSalesReport?start=${startDate}&end=${endDate}`);
             const result = await response.json();
             if (result.success) {
                 currentReportData = result.data;
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchCashCut() {
         cashCutResultsContainer.innerHTML = `<p class="text-gray-400">Calculando corte de caja...</p>`;
         try {
-            const response = await fetch(`/multi-sucursal/getCashCut`); // Por defecto toma la fecha de hoy
+            const response = await fetch(`${BASE_URL}/getCashCut`); // Por defecto toma la fecha de hoy
             const result = await response.json();
             if (result.success) {
                 renderCashCut(result.data);
