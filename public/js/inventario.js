@@ -1,7 +1,7 @@
 // Archivo: /public/js/inventario.js
 
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Referencias a elementos del DOM ---
+    // --- Referencias a elementos del DOM de Productos ---
     const addProductBtn = document.getElementById('add-product-btn');
     const productModal = document.getElementById('product-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
@@ -13,14 +13,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const marcaSelect = document.getElementById('id_marca');
     const searchProductInput = document.getElementById('search-product-input');
 
-    // --- INICIO: Referencias para la nueva función de Clonar ---
+    // --- Referencias para la función de Clonar ---
     const cloneSection = document.getElementById('clone-section');
     const toggleCloneBtn = document.getElementById('toggle-clone-btn');
     const cloneControls = document.getElementById('clone-controls');
     const cloneSourceProductSelect = document.getElementById('clone-source-product');
     const loadCloneDataBtn = document.getElementById('load-clone-data-btn');
-    // --- FIN: Referencias para la nueva función de Clonar ---
 
+    // --- Referencias para Ajuste de Stock ---
     const adjustStockModal = document.getElementById('adjust-stock-modal');
     const closeAdjustModalBtn = document.getElementById('close-adjust-modal-btn');
     const cancelAdjustBtn = document.getElementById('cancel-adjust-btn');
@@ -33,16 +33,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const adjustCurrentStockDisplay = document.getElementById('adjust-current-stock-display');
     const adjustQuantityInput = document.getElementById('adjust-quantity');
     const adjustStockReasonInput = document.getElementById('adjust-stock-reason');
-    const adjustQuantityLabel = document.getElementById('adjust-quantity-label'); // <--- Solución: Añadida esta referencia
+    const adjustQuantityLabel = document.getElementById('adjust-quantity-label');
 
     const inventoryHistoryBody = document.getElementById('inventory-history-body');
 
-    let allProducts = [];
+    // --- Referencias a elementos del DOM de Categorías ---
+    const manageCategoriesBtn = document.getElementById('manage-categories-btn');
+    const categoryModal = document.getElementById('category-modal');
+    const closeCategoryModalBtn = document.getElementById('close-category-modal-btn');
+    const categoryForm = document.getElementById('category-form');
+    const categoryIdInput = document.getElementById('category-id');
+    const categoryNameInput = document.getElementById('category-name');
+    const categoryDescriptionInput = document.getElementById('category-description');
+    const saveCategoryBtn = document.getElementById('save-category-btn');
+    const cancelCategoryEditBtn = document.getElementById('cancel-category-edit-btn');
+    const categoriesTableBody = document.getElementById('categories-table-body');
 
-    const showModal = () => productModal.classList.remove('hidden');
-    const hideModal = () => productModal.classList.add('hidden');
-    const showAdjustModal = () => adjustStockModal.classList.remove('hidden');
-    const hideAdjustModal = () => adjustStockModal.classList.add('hidden');
+    // --- Referencias a elementos del DOM de Marcas (NUEVOS) ---
+    const manageBrandsBtn = document.getElementById('manage-brands-btn');
+    const brandModal = document.getElementById('brand-modal');
+    const closeBrandModalBtn = document.getElementById('close-brand-modal-btn');
+    const brandForm = document.getElementById('brand-form');
+    const brandIdInput = document.getElementById('brand-id');
+    const brandNameInput = document.getElementById('brand-name');
+    const saveBrandBtn = document.getElementById('save-brand-btn');
+    const cancelBrandEditBtn = document.getElementById('cancel-brand-edit-btn');
+    const brandsTableBody = document.getElementById('brands-table-body');
+
+
+    let allProducts = [];
+    let allCategories = []; 
+    let allBrands = []; // Para almacenar las marcas y gestionarlas en el modal
+
+    // --- Funciones de utilidad para Modals ---
+    const showModal = (modalElement) => modalElement.classList.remove('hidden');
+    const hideModal = (modalElement) => modalElement.classList.add('hidden');
 
     function prepareNewProductForm() {
         productForm.reset();
@@ -54,11 +79,10 @@ document.addEventListener('DOMContentLoaded', function() {
         cloneControls.classList.add('hidden'); // Empezar con los controles ocultos
         populateCloneSelect();
 
-        showModal();
+        showModal(productModal);
     }
 
     // --- INICIO: Nuevas funciones para Clonar ---
-
     /**
      * Populates the product selector for the cloning function.
      */
@@ -142,9 +166,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch(`${BASE_URL}/getMarcas`)
             ]);
             const catResult = await catResponse.json();
-            if (catResult.success) populateSelect(categoriaSelect, catResult.data, 'Selecciona una categoría');
+            if (catResult.success) {
+                allCategories = catResult.data; // Almacenar categorías para el modal de categorías
+                populateSelect(categoriaSelect, allCategories, 'Selecciona una categoría');
+            }
             const marcaResult = await marcaResponse.json();
-            if (marcaResult.success) populateSelect(marcaSelect, marcaResult.data, 'Selecciona una marca');
+            if (marcaResult.success) {
+                allBrands = marcaResult.data; // Almacenar marcas para el modal de marcas
+                populateSelect(marcaSelect, allBrands, 'Selecciona una marca');
+            }
         } catch (error) {
             showToast('Error al cargar catálogos.', 'error');
         }
@@ -216,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('descripcion').value = product.descripcion;
                 
                 modalTitle.innerHTML = '<i class="fas fa-pencil-alt mr-3"></i>Editar Producto';
-                showModal();
+                showModal(productModal);
             } else {
                 showToast(`Error: ${result.message}`, 'error');
             }
@@ -243,7 +273,8 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 showToast(`Error: ${result.message}`, 'error');
             }
-        } catch (error) {
+        }
+        catch (error) {
             showToast('No se pudo eliminar el producto.', 'error');
         }
     }
@@ -264,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             const result = await response.json();
             if (result.success) {
-                hideModal();
+                hideModal(productModal);
                 fetchProducts();
                 fetchInventoryMovements();
                 showToast(`Producto ${productId ? 'actualizado' : 'creado'} exitosamente.`, 'success');
@@ -296,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmAdjustBtn.className = 'bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded-lg';
             confirmAdjustBtn.textContent = 'Restar Stock';
         }
-        showAdjustModal();
+        showModal(adjustStockModal);
         adjustQuantityInput.focus();
     }
 
@@ -352,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             if (result.success) {
                 showToast('Stock ajustado y movimiento registrado.', 'success');
-                hideAdjustModal();
+                hideModal(adjustStockModal);
                 fetchProducts();
                 fetchInventoryMovements();
             } else {
@@ -421,11 +452,257 @@ document.addEventListener('DOMContentLoaded', function() {
         renderProducts(filteredProducts);
     }
 
+    // --- INICIO: Funciones para la gestión de Categorías ---
+
+    function prepareCategoryFormForAdd() {
+        categoryForm.reset();
+        categoryIdInput.value = '';
+        saveCategoryBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Añadir Categoría';
+        saveCategoryBtn.classList.remove('bg-blue-600', 'hover:bg-blue-500');
+        saveCategoryBtn.classList.add('bg-green-600', 'hover:bg-green-500');
+        cancelCategoryEditBtn.classList.add('hidden');
+    }
+
+    async function fetchCategories() {
+        categoriesTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-5 text-gray-500">Cargando categorías...</td></tr>`;
+        try {
+            const response = await fetch(`${BASE_URL}/getCategorias`);
+            const result = await response.json();
+            if (result.success) {
+                allCategories = result.data; // Actualizar la lista global de categorías
+                renderCategories(allCategories);
+                populateSelect(categoriaSelect, allCategories, 'Selecciona una categoría'); // Actualizar el select de categorías en el modal de producto
+            } else {
+                categoriesTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-5 text-red-500">${result.message}</td></tr>`;
+            }
+        } catch (error) {
+            showToast('Error al cargar categorías.', 'error');
+            categoriesTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-5 text-red-500">No se pudo conectar con el servidor para categorías.</td></tr>`;
+        }
+    }
+
+    function renderCategories(categoriesToRender) {
+        if (!categoriesToRender || categoriesToRender.length === 0) {
+            categoriesTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-5 text-gray-500">No hay categorías.</td></tr>`;
+            return;
+        }
+        categoriesTableBody.innerHTML = '';
+        categoriesToRender.forEach(category => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-800';
+            tr.innerHTML = `
+                <td class="py-3 px-6 text-sm font-semibold text-white">${category.nombre}</td>
+                <td class="py-3 px-6 text-sm">${category.descripcion || 'Sin descripción'}</td>
+                <td class="py-3 px-6 text-center">
+                    <button data-id="${category.id}" data-name="${category.nombre}" data-description="${category.descripcion || ''}" class="edit-category-btn text-blue-400 hover:text-blue-300 mr-3" title="Editar Categoría"><i class="fas fa-pencil-alt"></i></button>
+                    <button data-id="${category.id}" class="delete-category-btn text-red-500 hover:text-red-400" title="Eliminar Categoría"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            `;
+            categoriesTableBody.appendChild(tr);
+        });
+    }
+
+    async function handleCategoryFormSubmit(event) {
+        event.preventDefault();
+        const categoryId = categoryIdInput.value;
+        const categoryName = categoryNameInput.value.trim();
+        const categoryDescription = categoryDescriptionInput.value.trim();
+
+        if (!categoryName) {
+            showToast('El nombre de la categoría es obligatorio.', 'error');
+            return;
+        }
+
+        const categoryData = {
+            id: categoryId,
+            nombre: categoryName,
+            descripcion: categoryDescription
+        };
+
+        const url = categoryId ? `${BASE_URL}/updateCategoria` : `${BASE_URL}/createCategoria`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(categoryData)
+            });
+            const result = await response.json();
+            if (result.success) {
+                showToast(`Categoría ${categoryId ? 'actualizada' : 'añadida'} exitosamente.`, 'success');
+                prepareCategoryFormForAdd(); // Reset form for new addition
+                fetchCategories(); // Refresh the list
+                fetchCatalogs(); // Refresh product categories dropdown
+            } else {
+                showToast(`Error: ${result.message}`, 'error');
+            }
+        } catch (error) {
+            showToast('No se pudo conectar con el servidor para gestionar categorías.', 'error');
+        }
+    }
+
+    function handleEditCategory(id, name, description) {
+        categoryIdInput.value = id;
+        categoryNameInput.value = name;
+        categoryDescriptionInput.value = description;
+        saveCategoryBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+        saveCategoryBtn.classList.remove('bg-green-600', 'hover:bg-green-500');
+        saveCategoryBtn.classList.add('bg-blue-600', 'hover:bg-blue-500');
+        cancelCategoryEditBtn.classList.remove('hidden');
+        categoryNameInput.focus();
+    }
+
+    async function handleDeleteCategory(id) {
+        const confirmed = await showConfirm('¿Estás seguro de que quieres eliminar esta categoría? Esta acción no se puede deshacer y los productos asociados quedarán sin categoría.');
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`${BASE_URL}/deleteCategoria`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+            const result = await response.json();
+            if (result.success) {
+                showToast('Categoría eliminada exitosamente.', 'success');
+                fetchCategories(); // Refresh the list
+                fetchCatalogs(); // Refresh product categories dropdown
+            } else {
+                showToast(`Error: ${result.message}`, 'error');
+            }
+        } catch (error) {
+            showToast('No se pudo eliminar la categoría.', 'error');
+        }
+    }
+
+    // --- FIN: Funciones para la gestión de Categorías ---
+
+    // --- INICIO: Funciones para la gestión de Marcas (NUEVAS) ---
+
+    function prepareBrandFormForAdd() {
+        brandForm.reset();
+        brandIdInput.value = '';
+        saveBrandBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Añadir Marca';
+        saveBrandBtn.classList.remove('bg-blue-600', 'hover:bg-blue-500');
+        saveBrandBtn.classList.add('bg-green-600', 'hover:bg-green-500');
+        cancelBrandEditBtn.classList.add('hidden');
+    }
+
+    async function fetchBrands() {
+        brandsTableBody.innerHTML = `<tr><td colspan="2" class="text-center py-5 text-gray-500">Cargando marcas...</td></tr>`;
+        try {
+            const response = await fetch(`${BASE_URL}/getMarcas`);
+            const result = await response.json();
+            if (result.success) {
+                allBrands = result.data; // Actualizar la lista global de marcas
+                renderBrands(allBrands);
+                populateSelect(marcaSelect, allBrands, 'Selecciona una marca'); // Actualizar el select de marcas en el modal de producto
+            } else {
+                brandsTableBody.innerHTML = `<tr><td colspan="2" class="text-center py-5 text-red-500">${result.message}</td></tr>`;
+            }
+        } catch (error) {
+            showToast('Error al cargar marcas.', 'error');
+            brandsTableBody.innerHTML = `<tr><td colspan="2" class="text-center py-5 text-red-500">No se pudo conectar con el servidor para marcas.</td></tr>`;
+        }
+    }
+
+    function renderBrands(brandsToRender) {
+        if (!brandsToRender || brandsToRender.length === 0) {
+            brandsTableBody.innerHTML = `<tr><td colspan="2" class="text-center py-5 text-gray-500">No hay marcas.</td></tr>`;
+            return;
+        }
+        brandsTableBody.innerHTML = '';
+        brandsToRender.forEach(brand => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-800';
+            tr.innerHTML = `
+                <td class="py-3 px-6 text-sm font-semibold text-white">${brand.nombre}</td>
+                <td class="py-3 px-6 text-center">
+                    <button data-id="${brand.id}" data-name="${brand.nombre}" class="edit-brand-btn text-blue-400 hover:text-blue-300 mr-3" title="Editar Marca"><i class="fas fa-pencil-alt"></i></button>
+                    <button data-id="${brand.id}" class="delete-brand-btn text-red-500 hover:text-red-400" title="Eliminar Marca"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            `;
+            brandsTableBody.appendChild(tr);
+        });
+    }
+
+    async function handleBrandFormSubmit(event) {
+        event.preventDefault();
+        const brandId = brandIdInput.value;
+        const brandName = brandNameInput.value.trim();
+
+        if (!brandName) {
+            showToast('El nombre de la marca es obligatorio.', 'error');
+            return;
+        }
+
+        const brandData = {
+            id: brandId,
+            nombre: brandName
+        };
+
+        const url = brandId ? `${BASE_URL}/updateMarca` : `${BASE_URL}/createMarca`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(brandData)
+            });
+            const result = await response.json();
+            if (result.success) {
+                showToast(`Marca ${brandId ? 'actualizada' : 'añadida'} exitosamente.`, 'success');
+                prepareBrandFormForAdd(); // Reset form for new addition
+                fetchBrands(); // Refresh the list
+                fetchCatalogs(); // Refresh product brands dropdown
+            } else {
+                showToast(`Error: ${result.message}`, 'error');
+            }
+        } catch (error) {
+            showToast('No se pudo conectar con el servidor para gestionar marcas.', 'error');
+        }
+    }
+
+    function handleEditBrand(id, name) {
+        brandIdInput.value = id;
+        brandNameInput.value = name;
+        saveBrandBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+        saveBrandBtn.classList.remove('bg-green-600', 'hover:bg-green-500');
+        saveBrandBtn.classList.add('bg-blue-600', 'hover:bg-blue-500');
+        cancelBrandEditBtn.classList.remove('hidden');
+        brandNameInput.focus();
+    }
+
+    async function handleDeleteBrand(id) {
+        const confirmed = await showConfirm('¿Estás seguro de que quieres eliminar esta marca? Esta acción no se puede deshacer y los productos asociados quedarán sin marca.');
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`${BASE_URL}/deleteMarca`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+            const result = await response.json();
+            if (result.success) {
+                showToast('Marca eliminada exitosamente.', 'success');
+                fetchBrands(); // Refresh the list
+                fetchCatalogs(); // Refresh product brands dropdown
+            } else {
+                showToast(`Error: ${result.message}`, 'error');
+            }
+        } catch (error) {
+            showToast('No se pudo eliminar la marca.', 'error');
+        }
+    }
+
+    // --- FIN: Funciones para la gestión de Marcas ---
+
 
     // --- Asignación de Eventos ---
-    addProductBtn.addEventListener('click', prepareNewProductForm);
-    closeModalBtn.addEventListener('click', hideModal);
-    cancelBtn.addEventListener('click', hideModal);
+    addProductBtn.addEventListener('click', () => prepareNewProductForm());
+    closeModalBtn.addEventListener('click', () => hideModal(productModal));
+    cancelBtn.addEventListener('click', () => hideModal(productModal));
     productForm.addEventListener('submit', handleFormSubmit);
 
     // Eventos para clonar
@@ -433,14 +710,15 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCloneDataBtn.addEventListener('click', handleCloneProduct);
 
     // Eventos para ajuste de stock
-    closeAdjustModalBtn.addEventListener('click', hideAdjustModal);
-    cancelAdjustBtn.addEventListener('click', hideAdjustModal);
+    closeAdjustModalBtn.addEventListener('click', () => hideModal(adjustStockModal));
+    cancelAdjustBtn.addEventListener('click', () => hideModal(adjustStockModal));
     confirmAdjustBtn.addEventListener('click', handleConfirmAdjustStock);
 
-    // Evento para búsqueda
+    // Evento para búsqueda de productos
     searchProductInput.addEventListener('keyup', filterProducts);
     searchProductInput.addEventListener('change', filterProducts);
 
+    // Event delegation para botones de productos (editar, eliminar, ajustar stock)
     productsTableBody.addEventListener('click', function(event) {
         const editButton = event.target.closest('.edit-btn');
         const deleteButton = event.target.closest('.delete-btn');
@@ -453,8 +731,55 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // --- Eventos para el modal de Categorías ---
+    manageCategoriesBtn.addEventListener('click', () => {
+        prepareCategoryFormForAdd(); // Resetear el formulario al abrir
+        fetchCategories(); // Cargar las categorías al abrir el modal
+        showModal(categoryModal);
+    });
+    closeCategoryModalBtn.addEventListener('click', () => hideModal(categoryModal));
+    categoryForm.addEventListener('submit', handleCategoryFormSubmit);
+    cancelCategoryEditBtn.addEventListener('click', () => prepareCategoryFormForAdd()); // Cancelar edición y limpiar formulario
+
+    // Event delegation para botones de categorías (editar, eliminar)
+    categoriesTableBody.addEventListener('click', function(event) {
+        const editButton = event.target.closest('.edit-category-btn');
+        const deleteButton = event.target.closest('.delete-category-btn');
+
+        if (editButton) {
+            handleEditCategory(editButton.dataset.id, editButton.dataset.name, editButton.dataset.description);
+        }
+        if (deleteButton) {
+            handleDeleteCategory(deleteButton.dataset.id);
+        }
+    });
+
+    // --- Eventos para el nuevo modal de Marcas (NUEVOS) ---
+    manageBrandsBtn.addEventListener('click', () => {
+        prepareBrandFormForAdd(); // Resetear el formulario al abrir
+        fetchBrands(); // Cargar las marcas al abrir el modal
+        showModal(brandModal);
+    });
+    closeBrandModalBtn.addEventListener('click', () => hideModal(brandModal));
+    brandForm.addEventListener('submit', handleBrandFormSubmit);
+    cancelBrandEditBtn.addEventListener('click', () => prepareBrandFormForAdd()); // Cancelar edición y limpiar formulario
+
+    // Event delegation para botones de marcas (editar, eliminar)
+    brandsTableBody.addEventListener('click', function(event) {
+        const editButton = event.target.closest('.edit-brand-btn');
+        const deleteButton = event.target.closest('.delete-brand-btn');
+
+        if (editButton) {
+            handleEditBrand(editButton.dataset.id, editButton.dataset.name);
+        }
+        if (deleteButton) {
+            handleDeleteBrand(deleteButton.dataset.id);
+        }
+    });
+
+
     // --- Carga Inicial ---
-    fetchCatalogs();
+    fetchCatalogs(); // Ahora también carga las categorías y marcas en allCategories/allBrands
     fetchProducts();
     fetchInventoryMovements();
 });

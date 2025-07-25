@@ -2,11 +2,11 @@
 // Archivo: /app/controllers/LoginController.php
 
 require_once __DIR__ . '/../models/Usuario.php';
+require_once __DIR__ . '/../models/AperturaCaja.php'; // Incluir el nuevo modelo
 
 class LoginController {
 
     public function login() {
-        // ... (el método login que ya teníamos sigue igual)
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -34,7 +34,7 @@ class LoginController {
                 
                 $_SESSION['user_id'] = $user->id;
                 $_SESSION['user_name'] = $user->nombre;
-                $_SESSION['user_role'] = $user->rol;
+                $_SESSION['rol'] = $user->rol; // <-- CORREGIDO: Usar 'rol' en lugar de 'user_role'
                 $_SESSION['branch_id'] = $user->id_sucursal;
 
                 $userData = [
@@ -45,8 +45,29 @@ class LoginController {
                     'id_sucursal' => $user->id_sucursal
                 ];
 
+                // --- LÓGICA DE APERTURA DE CAJA ---
+                $aperturaCajaModel = new AperturaCaja();
+                $fecha_actual = date('Y-m-d'); // Obtiene la fecha actual del servidor
+
+                // Si el usuario es Administrador, verificar si la caja está abierta para hoy
+                if ($user->rol === 'Administrador') {
+                    $apertura_hoy = $aperturaCajaModel->obtenerAperturaPorFecha($user->id_sucursal, $fecha_actual);
+                    if (!$apertura_hoy) {
+                        // La caja no ha sido abierta hoy por este administrador en esta sucursal
+                        http_response_code(200);
+                        echo json_encode([
+                            'success' => true,
+                            'message' => 'Inicio de sesión exitoso. Caja no abierta para hoy.',
+                            'user' => $userData,
+                            'requires_cash_opening' => true // Indicar al frontend que requiere apertura
+                        ]);
+                        return; // Detener la ejecución aquí
+                    }
+                }
+                // --- FIN LÓGICA ---
+
                 http_response_code(200);
-                echo json_encode(['success' => true, 'message' => 'Inicio de sesión exitoso.', 'user' => $userData]);
+                echo json_encode(['success' => true, 'message' => 'Inicio de sesión exitoso.', 'user' => $userData, 'requires_cash_opening' => false]);
             } else {
                 http_response_code(401);
                 echo json_encode(['success' => false, 'message' => 'Credenciales incorrectas.']);
@@ -58,7 +79,6 @@ class LoginController {
     }
 
     /**
-     * --- NUEVO MÉTODO ---
      * Cierra la sesión del usuario.
      */
     public function logout() {
@@ -84,7 +104,6 @@ class LoginController {
     }
 
     /**
-     * --- NUEVO MÉTODO ---
      * Verifica si existe una sesión activa y devuelve los datos del usuario.
      */
     public function checkSession() {
@@ -95,7 +114,7 @@ class LoginController {
             $userData = [
                 'id' => $_SESSION['user_id'],
                 'nombre' => $_SESSION['user_name'],
-                'rol' => $_SESSION['user_role'],
+                'rol' => $_SESSION['rol'], // <-- CORREGIDO: Usar 'rol'
                 'id_sucursal' => $_SESSION['branch_id']
             ];
             echo json_encode(['success' => true, 'user' => $userData]);

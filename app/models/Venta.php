@@ -3,17 +3,20 @@
 
 require_once __DIR__ . '/../../config/Database.php';
 require_once __DIR__ . '/Producto.php'; // Include Producto model to use its methods
+require_once __DIR__ . '/Cliente.php'; // Include Cliente model to use its methods
 
 class Venta
 {
     private $conn;
     private $productoModel; // Declare productoModel
+    private $clienteModel; // Declare clienteModel
 
     public function __construct()
     {
         $database = Database::getInstance();
         $this->conn = $database->getConnection();
         $this->productoModel = new Producto(); // Initialize productoModel
+        $this->clienteModel = new Cliente(); // Initialize clienteModel
     }
 
     /**
@@ -64,7 +67,7 @@ class Venta
         }
     }
 
-     /**
+    /**
      * Updates an existing sale.
      * @param array $data The sale data to update, including id_venta.
      * @return bool True if the update was successful.
@@ -146,7 +149,7 @@ class Venta
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-     /**
+    /**
      * Gets all sale data to load it into the POS.
      */
     public function getSaleForPOS($id_venta)
@@ -175,7 +178,7 @@ class Venta
     }
 
 
-   /**
+    /**
      * Gets all details of a sale, including the client's shipping address.
      */
     public function getDetailsForTicket($id_venta)
@@ -184,7 +187,8 @@ class Venta
 
         // 1. Sale, branch and client address data
         $query_venta = "SELECT
-                            v.id, v.fecha, v.total, v.metodo_pago, v.iva_aplicado,
+                            v.id, v.fecha, v.total, v.metodo_pago, v.iva_aplicado, v.estado,
+                            v.id_cliente, -- CAMBIO: Agregado id_cliente
                             c.nombre as cliente,
                             u.nombre as vendedor,
                             s.nombre as sucursal_nombre, s.direccion as sucursal_direccion, s.telefono as sucursal_telefono,
@@ -200,8 +204,8 @@ class Venta
         $stmt_venta->execute();
         $resultado['venta'] = $stmt_venta->fetch(PDO::FETCH_ASSOC);
 
-        // 2. Sale items
-        $query_items = "SELECT vd.cantidad, vd.precio_unitario, vd.subtotal, p.nombre as producto_nombre, p.sku
+        // 2. Sale items -- CAMBIO: Agregado vd.id_producto a la selección
+        $query_items = "SELECT vd.id_producto, vd.cantidad, vd.precio_unitario, vd.subtotal, p.nombre as producto_nombre, p.sku
                         FROM venta_detalles vd
                         JOIN productos p ON vd.id_producto = p.id
                         WHERE vd.id_venta = :id_venta";
@@ -214,7 +218,7 @@ class Venta
     }
 
 
-     /**
+    /**
      * Deletes a specific sale, but only if it is in 'Pendiente' status.
      * The database will handle cascading deletion of sale details.
      */
@@ -224,11 +228,99 @@ class Venta
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id_venta', $id_venta);
         $stmt->bindParam(':id_sucursal', $id_sucursal);
-        
+
         if ($stmt->execute()) {
             // Returns true if at least one row was deleted
             return $stmt->rowCount() > 0;
         }
         return false;
+    }
+
+    /**
+     * Cancels a sale, returns stock to inventory, and adjusts client credit if applicable.
+     * @param int $id_venta The ID of the sale to cancel.
+     * @param int $id_usuario_cancela The ID of the user who cancels the sale.
+     * @param int $id_sucursal The ID of the branch where the sale was made.
+     * @throws Exception If the sale is not found, already cancelled, or an error occurs during the process.
+     * @return bool True if the cancellation was successful.
+     */
+    public function cancelSale($id_venta, $id_usuario_cancela, $id_sucursal)
+    {
+        try {
+            // Start transaction
+            $this->conn->beginTransaction();
+
+            // 1. Get sale details to check status and retrieve products/client info
+            $saleDetails = $this->getDetailsForTicket($id_venta);
+
+            if (!$saleDetails || !$saleDetails['venta']) {
+                throw new Exception("Venta no encontrada.");
+            }
+
+            $venta = $saleDetails['venta'];
+            $items = $saleDetails['items'];
+            $id_cliente = $venta['id_cliente'];
+            $total_venta = $venta['total']; // Not directly used in this method, but good to have.
+            $metodo_pago_json = $venta['metodo_pago']; // This is a JSON string
+
+            if ($venta['estado'] === 'Cancelada') {
+                throw new Exception("La venta ya ha sido cancelada previamente.");
+            }
+            if ($venta['estado'] === 'Pendiente' || $venta['estado'] === 'Cotizacion') {
+                throw new Exception("Las ventas pendientes o cotizaciones no pueden ser canceladas por este método. Deben ser eliminadas.");
+            }
+
+            // 2. Return stock for each product in the sale
+            foreach ($items as $item) {
+                $product = $this->productoModel->getById($item['id_producto'], $id_sucursal);
+                $old_stock = $product['stock'] ?? 0;
+                $new_stock = $old_stock + $item['cantidad'];
+
+                // Corregir la llamada a updateStock para pasar todos los argumentos
+                $this->productoModel->updateStock(
+                    $item['id_producto'],
+                    $id_sucursal,
+                    $new_stock,
+                    'devolucion', // tipo_movimiento
+                    $item['cantidad'], // cantidad_movida
+                    $old_stock, // stock_anterior
+                    'Devolución por cancelación de Venta #' . $id_venta, // motivo
+                    $id_venta // referencia_id
+                );
+            }
+
+            // 3. Adjust client's credit if the sale was paid with 'Crédito'
+            if ($metodo_pago_json) {
+                $payments = json_decode($metodo_pago_json, true);
+                $creditPaymentAmount = 0;
+                foreach ($payments as $payment) {
+                    if ($payment['method'] === 'Crédito') {
+                        $creditPaymentAmount += (float)$payment['amount'];
+                    }
+                }
+
+                if ($creditPaymentAmount > 0) {
+                    $cliente = $this->clienteModel->getById($id_cliente);
+                    if ($cliente && $cliente['tiene_credito'] == 1) {
+                        // Subtract the credit amount from the client's current debt
+                        $this->clienteModel->updateClientCredit($id_cliente, -$creditPaymentAmount);
+                    }
+                }
+            }
+
+            // 4. Update sale status to 'Cancelada' and record cancellation details
+            $query_cancel = "UPDATE ventas SET estado = 'Cancelada', id_usuario_cancela = :id_usuario_cancela, fecha_cancelacion = NOW() WHERE id = :id_venta AND id_sucursal = :id_sucursal";
+            $stmt_cancel = $this->conn->prepare($query_cancel);
+            $stmt_cancel->bindParam(':id_usuario_cancela', $id_usuario_cancela);
+            $stmt_cancel->bindParam(':id_venta', $id_venta);
+            $stmt_cancel->bindParam(':id_sucursal', $id_sucursal);
+            $stmt_cancel->execute();
+
+            $this->conn->commit(); // Commit transaction
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollBack(); // Rollback on error
+            throw $e;
+        }
     }
 }

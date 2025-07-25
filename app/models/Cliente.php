@@ -323,4 +323,24 @@ class Cliente
         
         return $stmt->execute() && $stmt->rowCount() > 0;
     }
+
+    /**
+     * Decreases the client's current debt. Used when a credit sale is cancelled.
+     *
+     * @param int $id_cliente The ID of the client.
+     * @param float $amount The amount to decrease from current debt.
+     * @return bool True on success, false on failure.
+     */
+    public function decreaseClientCredit($id_cliente, $amount)
+    {
+        $query = "UPDATE " . $this->table_name . " 
+                  SET deuda_actual = deuda_actual - :amount 
+                  WHERE id = :id_cliente AND tiene_credito = 1 AND deuda_actual >= :amount";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':amount', $amount, PDO::PARAM_STR);
+        $stmt->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
+        
+        return $stmt->execute() && $stmt->rowCount() > 0;
+    }
 }

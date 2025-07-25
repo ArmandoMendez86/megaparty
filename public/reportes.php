@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../parciales/verificar_sesion.php'; 
+require_once __DIR__ . '/../parciales/verificar_sesion.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -16,22 +16,43 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         body {
             font-family: 'Inter', sans-serif;
         }
+
         ::-webkit-scrollbar {
-      width: 8px;
-    }
+            width: 8px;
+        }
 
-    ::-webkit-scrollbar-track {
-      background: #1e293b;
-    }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
 
-    ::-webkit-scrollbar-thumb {
-      background: #4a5568;
-      border-radius: 10px;
-    }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 10px;
+        }
 
-    ::-webkit-scrollbar-thumb:hover {
-      background: #718096;
-    }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+
+        /* Estilo para el contenedor de la tabla con scroll */
+        .table-scroll-container {
+            max-height: 400px;
+            /* Altura máxima para el scroll, ajusta según necesidad */
+            overflow-y: auto;
+            /* Habilita el scroll vertical */
+            border-radius: 0.5rem;
+            /* Bordes redondeados */
+            background-color: #1e293b;
+            /* Fondo similar al de la tarjeta */
+        }
+
+        /* Estilo para el Ticket ID */
+        .ticket-id-cell {
+            color: #818cf8;
+            /* Un color azul claro para hacerlo intuitivo */
+            font-weight: 600;
+            /* Un poco más de énfasis */
+        }
     </style>
 </head>
 
@@ -66,21 +87,39 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
                 </div>
 
                 <!-- Tabla de Reporte -->
-                <div class="overflow-x-auto">
+                <!-- Contenedor para el scroll vertical -->
+                <div class="table-scroll-container">
                     <table class="min-w-full">
-                        <thead class="bg-gray-800 text-xs text-gray-400 uppercase">
+                        <thead class="bg-gray-800 text-xs text-gray-400 uppercase sticky top-0">
                             <tr>
                                 <th class="py-3 px-6 text-left">Fecha</th>
                                 <th class="py-3 px-6 text-left">Ticket ID</th>
                                 <th class="py-3 px-6 text-left">Cliente</th>
                                 <th class="py-3 px-6 text-left">Vendedor</th>
                                 <th class="py-3 px-6 text-right">Total</th>
+                                <th class="py-3 px-6 text-left">Estado</th>
+                                <th class="py-3 px-6 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="report-table-body" class="divide-y divide-gray-700">
                             <tr>
-                                <td colspan="5" class="text-center py-10 text-gray-500">Seleccione un rango de fechas y genere un reporte.</td>
+                                <td colspan="7" class="text-center py-10 text-gray-500">Seleccione un rango de fechas y genere un reporte.</td>
                             </tr>
+                            <!-- Ejemplo de fila con Ticket ID de color. En tu JS, cuando generes las filas,
+                                 asegúrate de añadir la clase 'ticket-id-cell' a la celda del Ticket ID. -->
+                            <!-- <tr>
+                                <td class="py-3 px-6 text-left">2024-07-24</td>
+                                <td class="py-3 px-6 text-left ticket-id-cell">TICKET-00123</td>
+                                <td class="py-3 px-6 text-left">Cliente Ejemplo</td>
+                                <td class="py-3 px-6 text-left">Vendedor A</td>
+                                <td class="py-3 px-6 text-right">$150.00</td>
+                                <td class="py-3 px-6 text-left">Completada</td>
+                                <td class="py-3 px-6 text-center">
+                                    <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded-lg text-xs">
+                                        Cancelar
+                                    </button>
+                                </td>
+                            </tr> -->
                         </tbody>
                     </table>
                 </div>
@@ -88,15 +127,33 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
             <!-- Sección de Corte de Caja -->
             <div class="bg-[#1e293b] p-6 rounded-lg">
-                <h2 class="text-xl font-semibold text-white mb-4">Corte de Caja</h2>
+                <h2 class="text-xl font-semibold text-white mb-4">Corte de Caja Diaria</h2>
+                <!-- Filtros para el Corte de Caja -->
+                <div class="flex flex-wrap items-end gap-4 mb-6">
+                    <div>
+                        <label for="cash-cut-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha del Corte</label>
+                        <input type="date" id="cash-cut-date" class="bg-gray-700 text-white rounded-md p-2 border border-gray-600">
+                    </div>
+                    <div>
+                        <label for="initial-cash" class="block text-sm font-medium text-gray-300 mb-1">Caja Inicial</label>
+                        <input type="number" id="initial-cash" value="0.00" step="0.01" class="bg-gray-700 text-white rounded-md p-2 border border-gray-600 w-32">
+                    </div>
+                    <button id="generate-cash-cut-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Generar Corte de Caja</button>
+                    <button id="print-cash-cut-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                        <i class="fas fa-print mr-2"></i> Imprimir Corte
+                    </button>
+                </div>
                 <!-- Aquí irán los resultados del corte -->
-                <div id="cash-cut-results">
-                    <p class="text-gray-400">Funcionalidad de corte de caja próximamente...</p>
+                <div id="cash-cut-results" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <p class="text-gray-400 col-span-full">Seleccione una fecha para generar el corte de caja.</p>
                 </div>
             </div>
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2/qz-tray.min.js"></script>
+    <script src="js/qz-tray-handler.js"></script>
     <script src="js/rutas.js"></script>
     <script src="js/toast.js"></script>
     <script src="js/confirm.js"></script>

@@ -271,7 +271,7 @@ class Producto {
     }
 
     /**
-     * NUEVO MÉTODO: Ajusta el stock de un producto en una sucursal específica
+     * Ajusta el stock de un producto en una sucursal específica
      * y registra el movimiento en el historial.
      *
      * @param int $id_producto ID del producto.
@@ -285,7 +285,7 @@ class Producto {
      * @return bool True si el ajuste y registro fueron exitosos.
      */
     public function updateStock($id_producto, $id_sucursal, $new_stock, $tipo_movimiento, $cantidad_movida, $stock_anterior, $motivo, $referencia_id = null) {
-        $this->conn->beginTransaction();
+        // REMOVIDO: beginTransaction, commit, rollBack para permitir transacciones externas
         try {
             // Actualizar el stock en inventario_sucursal
             $query_update_stock = "INSERT INTO " . $this->inventory_table . " (id_producto, id_sucursal, stock) 
@@ -311,16 +311,15 @@ class Producto {
                 $referencia_id
             );
 
-            $this->conn->commit();
             return true;
         } catch (Exception $e) {
-            $this->conn->rollBack();
+            // No hacer rollback aquí, la transacción se maneja externamente
             throw $e;
         }
     }
 
     /**
-     * NUEVO MÉTODO: Registra un movimiento en la tabla movimientos_inventario.
+     * Registra un movimiento en la tabla movimientos_inventario.
      *
      * @param int $id_producto
      * @param int $id_sucursal
@@ -334,24 +333,30 @@ class Producto {
      * @return bool
      */
     public function addInventoryMovement($id_producto, $id_sucursal, $id_usuario, $tipo_movimiento, $cantidad, $stock_anterior, $stock_nuevo, $motivo = null, $referencia_id = null) {
-        $query = "INSERT INTO " . $this->movements_table . " 
-                  (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, stock_anterior, stock_nuevo, motivo, referencia_id) 
-                  VALUES (:id_producto, :id_sucursal, :id_usuario, :tipo_movimiento, :cantidad, :stock_anterior, :stock_nuevo, :motivo, :referencia_id)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id_producto', $id_producto, PDO::PARAM_INT);
-        $stmt->bindParam(':id_sucursal', $id_sucursal, PDO::PARAM_INT);
-        $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-        $stmt->bindParam(':tipo_movimiento', $tipo_movimiento);
-        $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
-        $stmt->bindParam(':stock_anterior', $stock_anterior, PDO::PARAM_INT);
-        $stmt->bindParam(':stock_nuevo', $stock_nuevo, PDO::PARAM_INT);
-        $stmt->bindParam(':motivo', $motivo);
-        $stmt->bindParam(':referencia_id', $referencia_id, PDO::PARAM_INT);
-        return $stmt->execute();
+        // REMOVIDO: beginTransaction, commit, rollBack para permitir transacciones externas
+        try {
+            $query = "INSERT INTO " . $this->movements_table . " 
+                    (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, stock_anterior, stock_nuevo, motivo, referencia_id) 
+                    VALUES (:id_producto, :id_sucursal, :id_usuario, :tipo_movimiento, :cantidad, :stock_anterior, :stock_nuevo, :motivo, :referencia_id)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id_producto', $id_producto, PDO::PARAM_INT);
+            $stmt->bindParam(':id_sucursal', $id_sucursal, PDO::PARAM_INT);
+            $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+            $stmt->bindParam(':tipo_movimiento', $tipo_movimiento);
+            $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
+            $stmt->bindParam(':stock_anterior', $stock_anterior, PDO::PARAM_INT);
+            $stmt->bindParam(':stock_nuevo', $stock_nuevo, PDO::PARAM_INT);
+            $stmt->bindParam(':motivo', $motivo);
+            $stmt->bindParam(':referencia_id', $referencia_id, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (Exception $e) {
+            // No hacer rollback aquí, la transacción se maneja externamente
+            throw $e;
+        }
     }
 
     /**
-     * NUEVO MÉTODO: Obtiene el historial de movimientos de inventario para una sucursal.
+     * Obtiene el historial de movimientos de inventario para una sucursal.
      *
      * @param int $id_sucursal
      * @return array

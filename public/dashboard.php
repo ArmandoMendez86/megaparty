@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../parciales/verificar_sesion.php'; 
+require_once __DIR__ . '/../parciales/verificar_sesion.php';
 ?>
 
 <!DOCTYPE html>
@@ -20,7 +20,6 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       font-family: "Inter", sans-serif;
     }
 
-    /* Estilos para un scrollbar más estilizado en webkit (Chrome, Safari) */
     ::-webkit-scrollbar {
       width: 8px;
     }
@@ -53,21 +52,25 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-[#1e293b] p-6 rounded-lg">
           <h3 class="text-gray-400 text-sm font-medium">Ingresos del Día</h3>
-          <p class="text-3xl font-bold text-green-400 mt-2">$0.00</p>
+          <!-- ID AÑADIDO -->
+          <p id="ingresos-dia" class="text-3xl font-bold text-green-400 mt-2">$0.00</p>
         </div>
         <div class="bg-[#1e293b] p-6 rounded-lg">
           <h3 class="text-gray-400 text-sm font-medium">
             Cuentas por Cobrar
           </h3>
-          <p class="text-3xl font-bold text-yellow-400 mt-2">$0.00</p>
+          <!-- ID AÑADIDO -->
+          <p id="cuentas-cobrar" class="text-3xl font-bold text-yellow-400 mt-2">$0.00</p>
         </div>
         <div class="bg-[#1e293b] p-6 rounded-lg">
           <h3 class="text-gray-400 text-sm font-medium">Gastos del Día</h3>
-          <p class="text-3xl font-bold text-red-400 mt-2">$0.00</p>
+          <!-- ID AÑADIDO -->
+          <p id="gastos-dia" class="text-3xl font-bold text-red-400 mt-2">$0.00</p>
         </div>
         <div class="bg-[#1e293b] p-6 rounded-lg">
           <h3 class="text-gray-400 text-sm font-medium">Ventas del Día</h3>
-          <p class="text-3xl font-bold text-white mt-2">0</p>
+          <!-- ID AÑADIDO -->
+          <p id="ventas-dia" class="text-3xl font-bold text-white mt-2">0</p>
         </div>
       </div>
 
@@ -78,20 +81,21 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
           <h3 class="text-white font-semibold mb-4">
             Top 5 Productos Más Vendidos
           </h3>
-          <!-- Aquí iría la tabla o gráfica de productos -->
-          <div class="text-gray-400">Datos de productos próximamente...</div>
+          <!-- ID AÑADIDO -->
+          <div id="top-productos-container" class="text-gray-400">Cargando datos...</div>
         </div>
         <!-- Top 5 Clientes -->
         <div class="bg-[#1e293b] p-6 rounded-lg">
           <h3 class="text-white font-semibold mb-4">Top 5 Clientes</h3>
-          <!-- Aquí iría la tabla o gráfica de clientes -->
-          <div class="text-gray-400">Datos de clientes próximamente...</div>
+          <!-- ID AÑADIDO -->
+          <div id="top-clientes-container" class="text-gray-400">Cargando datos...</div>
         </div>
       </div>
     </main>
   </div>
 
-   <script src="js/rutas.js"></script>
+  <script src="js/rutas.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 
 </html>

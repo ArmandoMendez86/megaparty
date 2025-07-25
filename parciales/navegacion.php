@@ -128,7 +128,7 @@
       <p id="user-nombre" class="text-sm font-semibold text-white truncate nav-text">
         <?php echo isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'Usuario'; ?>
       </p>
-      <p id="user-rol" class="text-xs text-gray-400 nav-text"> <?php echo isset($_SESSION['user_role']) ? htmlspecialchars($_SESSION['user_role']) : 'Rol'; ?> </p>
+      <p id="user-rol" class="text-xs text-gray-400 nav-text"> <?php echo isset($_SESSION['rol']) ? htmlspecialchars($_SESSION['rol']) : 'Rol'; ?> </p>
       <button id="logout-button" class="tooltip-container w-full mt-4 text-left text-sm text-red-400 hover:text-red-300 flex items-center">
         <i class="fas fa-sign-out-alt fa-fw w-6 h-6"></i>
         <span class="nav-text ml-3">Cerrar Sesión</span>

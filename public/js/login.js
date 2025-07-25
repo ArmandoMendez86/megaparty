@@ -20,10 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
             password: password
         };
 
-        // --- ¡ESTA ES LA LÍNEA CORREGIDA! ---
-        // Usamos una ruta absoluta desde la raíz del servidor para asegurar
-        // que la llamada a la API siempre sea correcta, sin importar
-        // en qué archivo HTML estemos.
         const apiUrl = `${BASE_URL}/login`;
 
         fetch(apiUrl, {
@@ -36,9 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                // Si la respuesta no es 2xx, leemos el mensaje de error del JSON
+                // Se o status da resposta não for 2xx, lemos a mensagem de erro do JSON
                 return response.json().then(errorData => {
-                    throw new Error(errorData.message || 'Error en la respuesta del servidor');
+                    throw new Error(errorData.message || 'Erro na resposta do servidor');
                 });
             }
             return response.json();
@@ -49,20 +45,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 messageDiv.classList.add('text-green-400');
 
                 setTimeout(() => {
-                    // La redirección a dashboard.html sigue siendo correcta
-                    // porque es relativa a la ubicación actual (la carpeta public).
-                    window.location.href = 'dashboard.php'; 
+                    // --- NOVA LÓGICA DE REDIRECIONAMENTO CONDICIONAL ---
+                    if (data.user && data.user.rol === 'Administrador' && data.requires_cash_opening) {
+                        // Se for um administrador e a caixa não foi aberta, redirecionar para a página de abertura
+                        window.location.href = 'apertura_caja.php';
+                    } else {
+                        // Caso contrário, redirecionar para o dashboard ou página principal
+                        window.location.href = 'dashboard.php'; 
+                    }
                 }, 1000);
 
             } else {
-                // Este 'else' ahora es un respaldo, el manejo de errores se hace arriba.
-                messageDiv.textContent = data.message || 'Error desconocido.';
+                // Este 'else' agora é um backup, o tratamento de erros é feito acima.
+                messageDiv.textContent = data.message || 'Erro desconhecido.';
                 messageDiv.classList.add('text-red-500');
             }
         })
         .catch(error => {
-            console.error('Error en la solicitud:', error);
-            // Mostramos el mensaje de error que capturamos.
+            console.error('Erro na solicitação:', error);
+            // Mostramos a mensagem de erro que capturamos.
             messageDiv.textContent = error.message;
             messageDiv.classList.add('text-red-500');
         });

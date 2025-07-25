@@ -312,4 +312,41 @@ class VentaController
             die('Error al generar la cotización: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Handles the request to cancel a completed sale.
+     * Reverts stock and adjusts client credit.
+     */
+    public function cancelSale()
+    {
+        header('Content-Type: application/json');
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Acceso no autorizado.']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (empty($data['id_venta'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'ID de venta no proporcionado para cancelar.']);
+            return;
+        }
+
+        try {
+            $id_venta = $data['id_venta'];
+            $id_usuario_cancela = $_SESSION['user_id'];
+            $id_sucursal = $_SESSION['branch_id'];
+
+            if ($this->ventaModel->cancelSale($id_venta, $id_usuario_cancela, $id_sucursal)) {
+                echo json_encode(['success' => true, 'message' => 'Venta cancelada exitosamente. Stock devuelto y crédito ajustado.']);
+            } else {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'No se pudo cancelar la venta. Verifique el ID y el estado.']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Error del servidor al cancelar la venta: ' . $e->getMessage()]);
+        }
+    }
 }

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../parciales/verificar_sesion.php'; 
+require_once __DIR__ . '/../parciales/verificar_sesion.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -24,6 +24,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         .modal-body {
             max-height: 65vh;
         }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -42,10 +43,11 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         }
 
         .stock-adjust-input {
-            width: 60px; 
+            width: 60px;
             text-align: center;
             -moz-appearance: textfield;
         }
+
         .stock-adjust-input::-webkit-outer-spin-button,
         .stock-adjust-input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -57,13 +59,15 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 <body class="bg-[#0f172a] text-gray-300">
 
     <div class="flex h-screen">
-      
-     <?php include_once '../parciales/navegacion.php'; ?>
+
+        <?php include_once '../parciales/navegacion.php'; ?>
 
         <!-- Contenido Principal -->
         <main class="flex-1 p-8 overflow-y-auto">
             <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <h1 class="text-3xl font-bold text-white">Gestión de Inventario</h1>
+                <h3 class="text-2xl font-bold text-white">
+                    <i class="fas fa-box mr-3 text-blue-400"></i> Gestión de Inventario
+                </h3>
                 <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
                     <div class="relative w-full md:w-64">
                         <input type="text" id="search-product-input" placeholder="Buscar producto..." class="w-full bg-gray-700 text-white rounded-md p-2 pl-10 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
@@ -71,6 +75,12 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
                     </div>
                     <button id="add-product-btn" class="bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-2 px-4 rounded-lg flex items-center w-full md:w-auto justify-center">
                         <i class="fas fa-plus mr-2"></i> Añadir Producto
+                    </button>
+                    <button id="manage-categories-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg flex items-center w-full md:w-auto justify-center">
+                        <i class="fas fa-tags mr-2"></i> Gestionar Categorías
+                    </button>
+                    <button id="manage-brands-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg flex items-center w-full md:w-auto justify-center">
+                        <i class="fas fa-copyright mr-2"></i> Gestionar Marcas
                     </button>
                 </div>
             </div>
@@ -101,9 +111,9 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
             <!-- Historial de Movimientos de Inventario -->
             <div class="bg-[#1e293b] rounded-lg shadow overflow-hidden p-6">
-                <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
                     <i class="fas fa-history mr-3 text-blue-400"></i> Historial de Movimientos de Inventario
-                </h2>
+                </h3>
                 <div class="max-h-[40vh] overflow-y-auto overflow-x-auto">
                     <table class="min-w-full">
                         <thead class="bg-gray-800 text-xs text-gray-400 uppercase sticky top-0">
@@ -137,10 +147,10 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
                 <h2 id="modal-title" class="text-xl font-bold text-white flex items-center"><i class="fas fa-box-open mr-3"></i>Añadir Nuevo Producto</h2>
                 <button id="close-modal-btn" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
             </div>
-            
+
             <form id="product-form">
                 <input type="hidden" id="product-id" name="id">
-                
+
                 <!-- ========= INICIO: Nueva Sección para Clonar ========= -->
                 <div id="clone-section" class="px-6 pt-4 pb-2 bg-[#131c2b] border-b border-gray-700 hidden">
                     <div class="flex items-center justify-between">
@@ -165,7 +175,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
                             <label for="nombre" class="block text-sm font-medium text-gray-300 mb-1">Nombre del Producto</label>
                             <input type="text" id="nombre" name="nombre" class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]" required>
                         </div>
-                        
+
                         <div>
                             <label for="sku" class="block text-sm font-medium text-gray-300 mb-1">SKU / Código Interno</label>
                             <input type="text" id="sku" name="sku" class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]" required>
@@ -241,7 +251,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
     <!-- Modal para Ajuste de Stock -->
     <div id="adjust-stock-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
-        <div class="bg-[#1e293b] rounded-lg shadow-xl w-full max-w-md">
+        <div class="bg-[#1e293b] rounded-lg shadow-xl w-full max-w-md transform transition-all duration-300 ease-in-out">
             <div class="p-6 border-b border-gray-700 flex justify-between items-center">
                 <h2 id="adjust-modal-title" class="text-2xl font-bold text-white">Ajustar Stock</h2>
                 <button id="close-adjust-modal-btn" class="text-gray-400 hover:text-white">&times;</button>
@@ -250,7 +260,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
                 <input type="hidden" id="adjust-product-id">
                 <input type="hidden" id="adjust-action">
                 <input type="hidden" id="adjust-current-stock-value">
-                
+
                 <div class="mb-4">
                     <p class="text-gray-400">Producto: <span id="adjust-product-name" class="font-bold text-white"></span></p>
                     <p class="text-gray-400">Stock Actual: <span id="adjust-current-stock-display" class="font-bold text-white"></span></p>
@@ -272,7 +282,106 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         </div>
     </div>
 
-     <script src="js/rutas.js"></script>
+    <!-- ========= INICIO: Nuevo Modal para Gestionar Categorías ========= -->
+    <div id="category-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
+        <div class="bg-[#1e293b] rounded-lg shadow-xl w-full max-w-2xl transform transition-all duration-300 ease-in-out">
+            <div class="px-6 py-4 border-b border-gray-700 flex justify-between items-center">
+                <h2 id="category-modal-title" class="text-xl font-bold text-white flex items-center"><i class="fas fa-tags mr-3"></i>Gestionar Categorías</h2>
+                <button id="close-category-modal-btn" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <div class="p-6 modal-body overflow-y-auto">
+                <!-- Formulario para Añadir/Editar Categoría -->
+                <form id="category-form" class="mb-6 p-4 border border-gray-700 rounded-lg bg-[#131c2b]">
+                    <input type="hidden" id="category-id" name="id">
+                    <div class="mb-4">
+                        <label for="category-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre de la Categoría</label>
+                        <input type="text" id="category-name" name="nombre" class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="category-description" class="block text-sm font-medium text-gray-300 mb-1">Descripción (Opcional)</label>
+                        <textarea id="category-description" name="descripcion" rows="2" class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" id="cancel-category-edit-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 hidden">Cancelar Edición</button>
+                        <button type="submit" id="save-category-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors duration-200">
+                            <i class="fas fa-plus-circle"></i>
+                            Añadir Categoría
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Tabla de Categorías Existentes -->
+                <h3 class="text-lg font-semibold text-white mb-3 flex items-center"><i class="fas fa-list mr-2"></i>Categorías Existentes</h3>
+                <div class="max-h-[30vh] overflow-y-auto overflow-x-auto rounded-lg">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-800 text-xs text-gray-400 uppercase sticky top-0">
+                            <tr>
+                                <th class="py-3 px-6 text-left">Nombre</th>
+                                <th class="py-3 px-6 text-left">Descripción</th>
+                                <th class="py-3 px-6 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-table-body" class="divide-y divide-gray-700">
+                            <tr>
+                                <td colspan="3" class="text-center py-5 text-gray-500">Cargando categorías...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========= FIN: Nuevo Modal para Gestionar Categorías ========= -->
+
+    <!-- ========= INICIO: Nuevo Modal para Gestionar Marcas (NUEVO) ========= -->
+    <div id="brand-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
+        <div class="bg-[#1e293b] rounded-lg shadow-xl w-full max-w-xl transform transition-all duration-300 ease-in-out">
+            <div class="px-6 py-4 border-b border-gray-700 flex justify-between items-center">
+                <h2 id="brand-modal-title" class="text-xl font-bold text-white flex items-center"><i class="fas fa-copyright mr-3"></i>Gestionar Marcas</h2>
+                <button id="close-brand-modal-btn" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <div class="p-6 modal-body overflow-y-auto">
+                <!-- Formulario para Añadir/Editar Marca -->
+                <form id="brand-form" class="mb-6 p-4 border border-gray-700 rounded-lg bg-[#131c2b]">
+                    <input type="hidden" id="brand-id" name="id">
+                    <div class="mb-4">
+                        <label for="brand-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre de la Marca</label>
+                        <input type="text" id="brand-name" name="nombre" class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-purple-500 focus:border-purple-500" required>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" id="cancel-brand-edit-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 hidden">Cancelar Edición</button>
+                        <button type="submit" id="save-brand-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors duration-200">
+                            <i class="fas fa-plus-circle"></i>
+                            Añadir Marca
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Tabla de Marcas Existentes -->
+                <h3 class="text-lg font-semibold text-white mb-3 flex items-center"><i class="fas fa-list mr-2"></i>Marcas Existentes</h3>
+                <div class="max-h-[30vh] overflow-y-auto overflow-x-auto rounded-lg">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-800 text-xs text-gray-400 uppercase sticky top-0">
+                            <tr>
+                                <th class="py-3 px-6 text-left">Nombre</th>
+                                <th class="py-3 px-6 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="brands-table-body" class="divide-y divide-gray-700">
+                            <tr>
+                                <td colspan="2" class="text-center py-5 text-gray-500">Cargando marcas...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========= FIN: Nuevo Modal para Gestionar Marcas (NUEVO) ========= -->
+
+    <script src="js/rutas.js"></script>
     <script src="js/toast.js"></script>
     <script src="js/confirm.js"></script>
     <script src="js/inventario.js"></script>
