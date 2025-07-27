@@ -61,7 +61,6 @@ document.addEventListener("DOMContentLoaded", function () {
     "credit-limit-container"
   );
 
-  // --- INICIO: Referencias para el nuevo modal de consulta de stock ---
   const stockCheckerModal = document.getElementById("stock-checker-modal");
   const openStockCheckerBtn = document.getElementById("open-stock-checker-btn");
   const closeStockCheckerModalBtn = document.getElementById(
@@ -74,7 +73,6 @@ document.addEventListener("DOMContentLoaded", function () {
     "stock-checker-results"
   );
   let stockSearchTimer;
-  // --- FIN: Referencias para el nuevo modal ---
 
   if (typeof connectQz === "function") {
     connectQz();
@@ -103,7 +101,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
       if (result.success) {
         allProducts = result.data;
-        renderProducts(allProducts.filter((p) => (p.stock || 0) > 0));
+        // *** CAMBIO: Se eliminó el filtro para mostrar todos los productos ***
+        renderProducts(allProducts);
       } else {
         productListContainer.innerHTML = `<p class="text-red-500">Error al cargar productos.</p>`;
       }
@@ -142,12 +141,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     products.forEach((product) => {
       const productCard = document.createElement("div");
-      productCard.className = "product-card";
+      const stock = product.stock || 0;
+      const isOutOfStock = stock <= 0;
+
+      // *** CAMBIO: Se añade clase si no hay stock ***
+      productCard.className = `product-card ${isOutOfStock ? 'out-of-stock' : ''}`;
       productCard.dataset.productId = product.id;
 
       const imageUrl = `https://placehold.co/100x100/334155/E2E8F0?text=${encodeURIComponent(
         product.nombre.substring(0, 8)
       )}`;
+
+      // *** CAMBIO: Se añade clase al texto del stock si es cero ***
+      const stockClass = isOutOfStock ? 'zero-stock' : '';
+      const stockText = isOutOfStock ? 'Agotado' : `Stock: ${stock}`;
 
       productCard.innerHTML = `
           <img src="${imageUrl}" alt="${
@@ -157,9 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="font-bold text-white text-sm mb-1 truncate">${
               product.nombre
             }</div>
-            <div class="text-xs text-gray-400 mb-2">Stock: ${
-              product.stock || 0
-            }</div>
+            <div class="text-xs text-gray-400 mb-2 product-card-stock ${stockClass}">${stockText}</div>
             <div class="text-lg font-mono text-green-400">$${parseFloat(
               product.precio_menudeo
             ).toFixed(2)}</div>
@@ -251,7 +256,6 @@ document.addEventListener("DOMContentLoaded", function () {
     addPriceEditListeners();
   }
 
-  // --- INICIO: Lógica para el modal de consulta de stock ---
   function openStockCheckerModal() {
     stockCheckerModal.classList.remove("hidden");
     stockCheckerSearchInput.focus();
@@ -301,7 +305,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let html = "";
     products.forEach((product) => {
       html += `
-        <div class="product-stock-card">
+        <div class="bg-gray-800 p-4 rounded-lg mb-3">
           <h3 class="text-lg font-bold text-white">${product.producto_nombre}</h3>
           <p class="text-sm text-gray-400 mb-3">SKU: ${product.sku}</p>
           <ul class="space-y-2">
@@ -312,7 +316,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const stockText =
           sucursal.stock > 0 ? `${sucursal.stock} en stock` : "Agotado";
         html += `
-          <li class="flex justify-between items-center text-sm">
+          <li class="flex justify-between items-center text-sm bg-gray-700/50 px-3 py-2 rounded-md">
             <span><i class="fas fa-store mr-2 text-gray-500"></i>${sucursal.nombre}</span>
             <span class="font-semibold ${stockClass}">${stockText}</span>
           </li>
@@ -325,8 +329,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     stockCheckerResultsContainer.innerHTML = html;
   }
-
-  // --- FIN: Lógica para el modal de consulta de stock ---
 
   function updateTotals() {
     const subtotal = cart.reduce(
@@ -453,9 +455,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- Lógica del Carrito y Venta ---
 
   async function addProductToCart(productId) {
+    // *** CAMBIO: Validación de stock al inicio de la función ***
+    const productInfo = allProducts.find((p) => p.id == productId);
+    if (productInfo && (productInfo.stock || 0) <= 0) {
+      showToast("Producto sin stock.", "error");
+      return;
+    }
+
     const cartItem = cart.find((item) => item.id == productId);
     if (cartItem) {
-      const productInfo = allProducts.find((p) => p.id == productId);
       if (productInfo && cartItem.quantity < productInfo.stock) {
         cartItem.quantity++;
         renderCart();
@@ -472,6 +480,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
       if (result.success) {
         const product = result.data;
+        // Doble verificación por si el stock cambió desde que se cargó la página
         if ((product.stock || 0) <= 0) {
           showToast("Producto sin stock.", "error");
           return;
@@ -1020,10 +1029,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const query = searchProductInput.value.toLowerCase();
     const filtered = allProducts.filter(
       (p) =>
-        (p.stock || 0) > 0 &&
-        (p.nombre.toLowerCase().includes(query) ||
-          (p.sku && p.sku.toLowerCase().includes(query)) ||
-          (p.codigo_barras && p.codigo_barras.toLowerCase().includes(query)))
+        p.nombre.toLowerCase().includes(query) ||
+        (p.sku && p.sku.toLowerCase().includes(query)) ||
+        (p.codigo_barras && p.codigo_barras.toLowerCase().includes(query))
     );
     renderProducts(filtered);
   }
@@ -1360,19 +1368,17 @@ document.addEventListener("DOMContentLoaded", function () {
   cancelAddClientBtn.addEventListener("click", hideAddClientModal);
   addClientForm.addEventListener("submit", handleAddNewClient);
 
-  // --- INICIO: Event listeners para el modal de consulta de stock ---
   openStockCheckerBtn.addEventListener("click", openStockCheckerModal);
   closeStockCheckerModalBtn.addEventListener("click", closeStockCheckerModal);
 
   stockCheckerSearchInput.addEventListener("keyup", () => {
     clearTimeout(stockSearchTimer);
-    stockSearchTimer = setTimeout(searchStockAcrossBranches, 300); // Debounce de 300ms
+    stockSearchTimer = setTimeout(searchStockAcrossBranches, 300);
   });
-  // --- FIN: Event listeners para el modal ---
 
   // --- Inicialización de Select2 para el cliente ---
   searchClientSelect.select2({
-    width: "100%", // <-- CAMBIO: Asegura que el control ocupe todo el ancho disponible.
+    width: "100%",
     placeholder: "Buscar cliente por nombre, RFC o teléfono...",
     minimumInputLength: 2,
     language: {

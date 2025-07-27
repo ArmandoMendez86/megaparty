@@ -74,6 +74,26 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
     }
 
+    /* --- INICIO: NUEVOS ESTILOS PARA PRODUCTOS AGOTADOS --- */
+    .product-card.out-of-stock {
+      opacity: 0.6;
+      background-color: #1a202c;
+      cursor: not-allowed;
+    }
+
+    .product-card.out-of-stock:hover {
+      transform: none;
+      background-color: #1a202c;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-card-stock.zero-stock {
+      color: #ef4444; /* Rojo para el texto de stock agotado */
+      font-weight: 600;
+    }
+    /* --- FIN: NUEVOS ESTILOS --- */
+
+
     .product-card-image {
       width: 70px;
       height: 70px;
@@ -286,11 +306,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       color: white;
     }
 
-    /* --- INICIO: CAMBIOS RESPONSIVOS --- */
-    /* Apila las columnas principales solo en pantallas pequeñas (móviles) */
     @media (max-width: 768px) {
-
-      /* Corresponde al breakpoint 'md' de Tailwind */
       .main-layout-container {
         flex-direction: column;
         overflow-y: auto;
@@ -323,8 +339,6 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         width: 100%;
       }
     }
-
-    /* --- FIN: CAMBIOS RESPONSIVOS --- */
   </style>
 </head>
 
@@ -333,11 +347,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
   <?php include_once '../parciales/navegacion.php'; ?>
 
-  <!-- Contenedor principal con clases responsivas ajustadas -->
   <div class="main-layout-container flex-1 flex md:flex-row flex-col overflow-hidden">
-    <!-- Columna de productos ajustada -->
     <div class="md:w-1/2 w-full flex flex-col p-4">
-      <!-- Barra de búsqueda con nuevo botón -->
       <div class="mb-4 flex gap-2">
         <input
           type="text"
@@ -353,7 +364,6 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         class="product-grid"></div>
     </div>
 
-    <!-- Columna de carrito ajustada -->
     <div class="md:w-1/2 w-full bg-[#1e293b] flex flex-col p-4 shadow-lg">
 
       <div class="mb-4">
@@ -372,7 +382,6 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         </div>
       </div>
 
-      <!-- Sección de Cliente y Precios Optimizada -->
       <div class="py-4 space-y-3 border-b border-gray-700">
         <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
 
@@ -410,7 +419,6 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       </div>
 
 
-      <!-- Sección de Totales -->
       <div class="py-4 space-y-2">
         <div class="flex items-center justify-between text-sm">
           <label for="toggle-iva" class="font-medium text-gray-300 cursor-pointer">
@@ -427,7 +435,6 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         </div>
       </div>
 
-      <!-- Botones de Acción de Venta -->
       <div class="grid grid-cols-3 gap-4 pt-4 border-t border-gray-700">
         <button id="cancel-sale-btn" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg">
           Cancelar
@@ -442,7 +449,6 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
     </div>
   </div>
 
-  <!-- MODALES (sin cambios) -->
   <div
     id="charge-modal"
     class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
@@ -579,7 +585,6 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
     </div>
   </div>
 
-  <!-- INICIO: NUEVO MODAL PARA CONSULTAR STOCK -->
   <div id="stock-checker-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
     <div class="bg-[#1e293b] rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
       <div class="p-6 border-b border-gray-700 flex justify-between items-center">
@@ -600,7 +605,6 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       </div>
     </div>
   </div>
-  <!-- FIN: NUEVO MODAL PARA CONSULTAR STOCK -->
 
   <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2/qz-tray.min.js"></script>
