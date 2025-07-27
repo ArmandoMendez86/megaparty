@@ -1,4 +1,8 @@
-<!-- CSS MODIFICADO -->
+<?php
+// Se define la página actual al inicio del propio menú de navegación
+$currentPage = basename($_SERVER['PHP_SELF']);
+?>
+
 <style>
   .tooltip-container {
     position: relative;
@@ -100,6 +104,15 @@
       <span class="nav-text ml-3">Reportes</span>
       <span class="tooltip">Reporte de Ventas</span>
     </a>
+    <!-- INICIO: Nuevo enlace unificado para Administración (Solo para Administradores) -->
+    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
+      <a href="admin.php" class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'admin.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
+        <i class="fas fa-shield-alt fa-fw w-6 h-6"></i>
+        <span class="nav-text ml-3">Gestión</span>
+        <span class="tooltip">Administración</span>
+      </a>
+    <?php endif; ?>
+    <!-- FIN: Nuevo enlace unificado -->
     <a href="impresoras.php" class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'impresoras.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
       <i class="fas fa-print fa-fw w-6 h-6"></i>
       <span class="nav-text ml-3">Impresoras</span>

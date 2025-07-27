@@ -5,18 +5,18 @@ class Database
 {
 
     //Loscalhost
-   /*  private $host = 'localhost';
+    private $host = 'localhost';
     private $db_name = 'multisucursal';
     private $username = 'root';
     private $password = 'linux';
-    private $conn; */
+    private $conn;
 
     //Hostinger
-    private $host = 'localhost';
+   /*  private $host = 'localhost';
     private $db_name = 'u916760597_multisucursal';
     private $username = 'u916760597_multisucursal';
     private $password = 'Ingeniero861215#-';
-    private $conn;
+    private $conn; */
 
     private static $instance = null;
 

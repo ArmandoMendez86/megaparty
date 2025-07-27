@@ -4,7 +4,6 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Establecer la zona horaria a la de la Ciudad de México
 date_default_timezone_set('America/Mexico_City');
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -17,7 +16,11 @@ $action = isset($_GET['action']) ? $_GET['action'] : null;
 if (in_array($action, ['login', 'logout', 'check-session'])) {
     require_once __DIR__ . '/../app/controllers/LoginController.php';
     $controller = new LoginController();
-} elseif (in_array($action, ['getProducts', 'createProduct', 'getProduct', 'updateProduct', 'deleteProduct', 'getProductForPOS', 'getProductByBarcode', 'adjustStock', 'getInventoryMovements'])) {
+} elseif (in_array($action, [
+    'getProducts', 'createProduct', 'getProduct', 'updateProduct', 'deleteProduct', 
+    'getProductForPOS', 'getProductByBarcode', 'adjustStock', 'getInventoryMovements',
+    'getStockAcrossBranches'
+])) {
     require_once __DIR__ . '/../app/controllers/ProductoController.php';
     $controller = new ProductoController();
 } elseif (in_array($action, ['getCategorias', 'getMarcas', 'createCategoria', 'updateCategoria', 'deleteCategoria', 'createMarca', 'updateMarca', 'deleteMarca'])) {
@@ -42,10 +45,17 @@ if (in_array($action, ['login', 'logout', 'check-session'])) {
 } elseif (in_array($action, ['checkApertura', 'registrarApertura', 'getMontoApertura'])) {
     require_once __DIR__ . '/../app/controllers/AperturaCajaController.php';
     $controller = new AperturaCajaController();
+} elseif (in_array($action, [ // --- INICIO: NUEVO BLOQUE PARA ADMINISTRACIÓN ---
+    'getSucursales', 'createSucursal', 'updateSucursal', 'deleteSucursal',
+    'getUsuarios', 'createUsuario', 'getUsuario', 'updateUsuario', 'deleteUsuario'
+])) {
+    // Se asume la existencia de un AdminController que maneja ambas entidades
+    require_once __DIR__ . '/../app/controllers/AdminController.php';
+    $controller = new AdminController();
 } elseif (in_array($action, ['getPrinterConfig', 'updatePrinterConfig', 'getBranchConfig', 'updateBranchConfig'])) {
     require_once __DIR__ . '/../app/controllers/ConfiguracionController.php';
     $controller = new ConfiguracionController();
-} elseif (in_array($action, ['getDashboardData'])) { // <-- NUEVA RUTA PARA EL DASHBOARD
+} elseif (in_array($action, ['getDashboardData'])) {
     require_once __DIR__ . '/../app/controllers/DashboardController.php';
     $controller = new DashboardController();
 }
@@ -58,9 +68,7 @@ switch ($action) {
     case 'check-session': $controller->checkSession(); break;
 
     // --- RUTA DE DASHBOARD ---
-    case 'getDashboardData': // <-- NUEVO CASE
-        $controller->getData();
-        break;
+    case 'getDashboardData': $controller->getData(); break;
 
     // --- RUTAS DE PRODUCTOS E INVENTARIO ---
     case 'getProducts': $controller->getAll(); break;
@@ -72,6 +80,7 @@ switch ($action) {
     case 'getProductByBarcode': $controller->getByBarcode(); break;
     case 'adjustStock': $controller->adjustStock(); break;
     case 'getInventoryMovements': $controller->getInventoryMovements(); break;
+    case 'getStockAcrossBranches': $controller->getStockAcrossBranches(); break;
 
     // --- RUTAS DE CATÁLOGOS (CATEGORÍAS Y MARCAS) ---
     case 'getCategorias': $controller->getCategorias(); break;
@@ -121,8 +130,19 @@ switch ($action) {
     case 'checkApertura': $controller->checkApertura(); break;
     case 'registrarApertura': $controller->registrarApertura(); break;
     case 'getMontoApertura': $controller->getMontoApertura(); break;
+    
+    // --- INICIO: NUEVAS RUTAS DE ADMINISTRACIÓN ---
+    case 'getSucursales': $controller->getAllSucursales(); break;
+    case 'createSucursal': $controller->createSucursal(); break;
+    case 'updateSucursal': $controller->updateSucursal(); break;
+    case 'deleteSucursal': $controller->deleteSucursal(); break;
+    case 'getUsuarios': $controller->getAllUsuarios(); break;
+    case 'createUsuario': $controller->createUsuario(); break;
+    case 'updateUsuario': $controller->updateUsuario(); break;
+    case 'deleteUsuario': $controller->deleteUsuario(); break;
+    // --- FIN: NUEVAS RUTAS DE ADMINISTRACIÓN ---
 
-    // --- RUTAS DE CONFIGURACIÓN ---
+    // --- RUTAS DE CONFIGURACIÓN (Pueden ser movidas dentro de AdminController si se desea) ---
     case 'getBranchConfig': $controller->getBranchConfig(); break;
     case 'updateBranchConfig': $controller->updateBranchConfig(); break;
     case 'getPrinterConfig': $controller->getPrinterConfig(); break;
@@ -130,8 +150,6 @@ switch ($action) {
 
     default:
         if (isset($controller)) {
-             // This case can happen if the action is in the 'in_array' but not in the switch.
-             // It's a fallback.
             header('Content-Type: application/json');
             http_response_code(404);
             echo json_encode(['success' => false, 'message' => 'Acción no definida en el enrutador.']);
