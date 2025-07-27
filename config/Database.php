@@ -4,7 +4,7 @@
 class Database
 {
 
-    //Loscalhost
+    //Localhost
     /* private $host = 'localhost';
     private $db_name = 'multisucursal';
     private $username = 'root';
@@ -12,7 +12,7 @@ class Database
     private $conn; */
 
     //Hostinger
-    private $host = 'localhost';
+   private $host = 'localhost';
     private $db_name = 'u916760597_multisucursal';
     private $username = 'u916760597_multisucursal';
     private $password = 'Ingeniero861215#-';
@@ -28,6 +28,8 @@ class Database
             $this->conn = new PDO($dsn, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $this->conn->exec("SET time_zone = '-06:00'");
+
         } catch (PDOException $e) {
             echo 'Error de Conexión: ' . $e->getMessage();
             exit;

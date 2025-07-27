@@ -75,6 +75,15 @@ class VentaController
         try {
             $this->conn->beginTransaction(); // Start transaction for sale and inventory movements
 
+            // First, check stock for all items before processing anything
+            foreach ($data['cart'] as $item) {
+                $product = $this->productoModel->getById($item['id'], $data['id_sucursal']);
+                $current_stock = $product['stock'] ?? 0;
+                if ($item['quantity'] > $current_stock) {
+                    throw new Exception("Stock insuficiente para el producto: " . $product['nombre'] . ". Solicitado: " . $item['quantity'] . ", Disponible: " . $current_stock);
+                }
+            }
+
             if (isset($data['id_venta']) && !empty($data['id_venta'])) {
                 $this->ventaModel->update($data);
                 $saleId = $data['id_venta'];
@@ -89,12 +98,24 @@ class VentaController
                 $this->clienteModel->updateClientCredit($data['id_cliente'], $creditPaymentAmount);
             }
 
-            // Record inventory movements for each item in the cart (sales are 'salida' type)
+            // Record inventory movements and UPDATE STOCK for each item in the cart
             foreach ($data['cart'] as $item) {
                 $product = $this->productoModel->getById($item['id'], $data['id_sucursal']);
                 $old_stock = $product['stock'] ?? 0;
                 $new_stock = $old_stock - $item['quantity'];
 
+                // *** INICIO DE LA CORRECCIÓN ***
+                // Step 1: Actually UPDATE the stock in the inventory table
+                $stmt_update_stock = $this->conn->prepare(
+                    "UPDATE inventario_sucursal SET stock = :new_stock WHERE id_producto = :id_producto AND id_sucursal = :id_sucursal"
+                );
+                $stmt_update_stock->bindParam(':new_stock', $new_stock, PDO::PARAM_INT);
+                $stmt_update_stock->bindParam(':id_producto', $item['id'], PDO::PARAM_INT);
+                $stmt_update_stock->bindParam(':id_sucursal', $data['id_sucursal'], PDO::PARAM_INT);
+                $stmt_update_stock->execute();
+                // *** FIN DE LA CORRECCIÓN ***
+
+                // Step 2: Log the movement (this part was already correct)
                 $this->productoModel->addInventoryMovement(
                     $item['id'],
                     $data['id_sucursal'],
@@ -141,7 +162,6 @@ class VentaController
 
         $data['id_usuario'] = $_SESSION['user_id'];
         $data['id_sucursal'] = $_SESSION['branch_id'];
-        // FIX: Removed the line `$data['metodo_pago'] = null;` as the model now handles it correctly.
         $data['estado'] = 'Pendiente';
         $data['iva_aplicado'] = $data['iva_aplicado'] ?? 0;
 
