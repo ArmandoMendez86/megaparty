@@ -74,6 +74,17 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   let stockSearchTimer;
 
+   // --- INICIO: Referencias para el Modal de Apertura de Caja ---
+  const openCashModalBtn = document.getElementById('openCashModalBtn');
+  const cashOpeningModal = document.getElementById('cashOpeningModal');
+  const closeCashModalBtn = document.getElementById('closeCashModalBtn');
+  const cancelCashOpeningBtn = document.getElementById('cancelCashOpeningBtn');
+  const cashOpeningForm = document.getElementById('cashOpeningForm');
+  const montoInput = document.getElementById('monto_inicial');
+  const fechaInput = document.getElementById('fecha_apertura');
+  const modalErrorMessage = document.getElementById('modal-error-message');
+  // --- FIN: Referencias para el Modal de Apertura de Caja ---
+
   if (typeof connectQz === "function") {
     connectQz();
   }
@@ -1284,6 +1295,75 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+
+// --- INICIO: Lógica para el Modal de Apertura de Caja ---
+  function setupCashOpeningModal() {
+      const showModal = () => {
+          fechaInput.value = new Date().toISOString().split('T')[0];
+          montoInput.value = '';
+          modalErrorMessage.classList.add('hidden');
+          cashOpeningModal.classList.remove('hidden');
+      };
+
+      const hideModal = () => {
+          cashOpeningModal.classList.add('hidden');
+      };
+
+      const showModalError = (message) => {
+          modalErrorMessage.textContent = message;
+          modalErrorMessage.classList.remove('hidden');
+      }
+
+      openCashModalBtn.addEventListener('click', showModal);
+      closeCashModalBtn.addEventListener('click', hideModal);
+      cancelCashOpeningBtn.addEventListener('click', hideModal);
+
+      cashOpeningForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          modalErrorMessage.classList.add('hidden');
+
+          const monto = montoInput.value;
+          const fecha = fechaInput.value;
+
+          if (monto === '' || parseFloat(monto) < 0 || !fecha) {
+              showModalError('Por favor, ingrese un monto y fecha válidos.');
+              return;
+          }
+
+          const data = {
+              monto_inicial: parseFloat(monto),
+              fecha_apertura: fecha
+          };
+
+          try {
+              // Asegúrate que la ruta sea correcta según tu sistema de enrutamiento
+              const response = await fetch(`${BASE_URL}/registrarApertura`, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/json'
+                  },
+                  body: JSON.stringify(data)
+              });
+
+              const result = await response.json();
+
+              if (response.ok) {
+                  hideModal();
+                  showToast(result.message, 'success');
+              } else {
+                  showModalError(result.message || 'Ocurrió un error inesperado.');
+              }
+          } catch (error) {
+              showModalError('No se pudo conectar con el servidor. Verifique su conexión.');
+          }
+      });
+  }
+  // --- FIN: Lógica para el Modal de Apertura de Caja ---
+
+
+
+
   clientHasCreditCheckbox.addEventListener("change", function () {
     if (this.checked) {
       creditLimitContainer.classList.remove("hidden");
@@ -1437,4 +1517,5 @@ document.addEventListener("DOMContentLoaded", function () {
   fetchProducts();
   fetchPrinterConfig();
   toggleSaveButton();
+  setupCashOpeningModal();
 });

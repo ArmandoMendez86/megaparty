@@ -5,14 +5,14 @@ class Database
 {
 
     //Localhost
-   /*  private $host = 'localhost';
-    private $db_name = 'multisucursal';
-    private $username = 'root';
-    private $password = 'linux';
-    private $conn; */
+    /*  private $host = 'localhost';
+     private $db_name = 'multisucursal';
+     private $username = 'root';
+     private $password = 'linux';
+     private $conn; */
 
     //Hostinger
-   private $host = 'localhost';
+    private $host = 'localhost';
     private $db_name = 'u916760597_multisucursal';
     private $username = 'u916760597_multisucursal';
     private $password = 'Ingeniero861215#-';
@@ -36,7 +36,9 @@ class Database
         }
     }
 
-    private function __clone() {}
+    private function __clone()
+    {
+    }
 
     public static function getInstance()
     {

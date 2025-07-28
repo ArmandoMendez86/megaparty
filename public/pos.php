@@ -9,9 +9,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Punto de Venta - Sistema POS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
   <!-- Select2 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <style>
@@ -88,9 +86,11 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
     }
 
     .product-card-stock.zero-stock {
-      color: #ef4444; /* Rojo para el texto de stock agotado */
+      color: #ef4444;
+      /* Rojo para el texto de stock agotado */
       font-weight: 600;
     }
+
     /* --- FIN: NUEVOS ESTILOS --- */
 
 
@@ -339,6 +339,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         width: 100%;
       }
     }
+    
   </style>
 </head>
 
@@ -350,33 +351,29 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
   <div class="main-layout-container flex-1 flex md:flex-row flex-col overflow-hidden">
     <div class="md:w-1/2 w-full flex flex-col p-4">
       <div class="mb-4 flex gap-2">
-        <input
-          type="text"
-          id="search-product"
-          placeholder="Buscar producto en esta sucursal..."
+        <input type="text" id="search-product" placeholder="Buscar producto en esta sucursal..."
           class="w-full bg-gray-700 text-white rounded-md p-3 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]" />
-        <button id="open-stock-checker-btn" title="Buscar stock en todas las sucursales" class="flex-shrink-0 bg-teal-600 hover:bg-teal-500 text-white font-bold p-3 rounded-md text-lg flex items-center justify-center">
+        <!-- BOTÓN DE APERTURA DE CAJA AÑADIDO -->
+        <button id="openCashModalBtn" title="Abrir Caja"
+          class="flex-shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-bold p-3 rounded-md text-lg flex items-center justify-center">
+          <i class="fas fa-cash-register"></i>
+        </button>
+        <button id="open-stock-checker-btn" title="Buscar stock en todas las sucursales"
+          class="flex-shrink-0 bg-teal-600 hover:bg-teal-500 text-white font-bold p-3 rounded-md text-lg flex items-center justify-center">
           <i class="fas fa-globe"></i>
         </button>
       </div>
-      <div
-        id="product-list"
-        class="product-grid"></div>
+      <div id="product-list" class="product-grid"></div>
     </div>
 
     <div class="md:w-1/2 w-full bg-[#1e293b] flex flex-col p-4 shadow-lg">
 
       <div class="mb-4">
-        <input
-          type="text"
-          id="search-cart-item"
-          placeholder="Buscar artículo en el carrito..."
+        <input type="text" id="search-cart-item" placeholder="Buscar artículo en el carrito..."
           class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]" />
       </div>
 
-      <div
-        id="cart-items"
-        class="flex-1 overflow-y-auto border-t border-b border-gray-700 py-2">
+      <div id="cart-items" class="flex-1 overflow-y-auto border-t border-b border-gray-700 py-2">
         <div class="text-center text-gray-500 py-10">
           El carrito está vacío
         </div>
@@ -391,7 +388,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
               <select id="search-client" class="w-full">
                 <option value="1" selected>Público en General</option>
               </select>
-              <button id="add-new-client-btn" title="Añadir nuevo cliente" class="flex-shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-bold p-2 rounded-md h-[42px] w-[42px] text-sm flex items-center justify-center">
+              <button id="add-new-client-btn" title="Añadir nuevo cliente"
+                class="flex-shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-bold p-2 rounded-md h-[42px] w-[42px] text-sm flex items-center justify-center">
                 <i class="fas fa-user-plus"></i>
               </button>
             </div>
@@ -400,8 +398,10 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
           <div class="flex-shrink-0">
             <label class="block text-xs font-medium mb-1 text-gray-400">Tipo de Precio</label>
             <div id="price-type-selector" class="flex items-center bg-gray-800 rounded-lg p-1 border border-gray-700">
-              <button data-price-type="menudeo" class="price-type-btn active-price-type px-4 py-2 text-sm font-semibold rounded-md">Menudeo</button>
-              <button data-price-type="mayoreo" class="price-type-btn px-4 py-2 text-sm font-semibold rounded-md">Mayoreo</button>
+              <button data-price-type="menudeo"
+                class="price-type-btn active-price-type px-4 py-2 text-sm font-semibold rounded-md">Menudeo</button>
+              <button data-price-type="mayoreo"
+                class="price-type-btn px-4 py-2 text-sm font-semibold rounded-md">Mayoreo</button>
             </div>
             <input type="hidden" id="price-type-value" value="menudeo">
           </div>
@@ -409,10 +409,12 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
         <div id="address-selection-container" class="hidden">
           <label for="client-address-select" class="block text-sm font-medium mb-1">Dirección de Envío</label>
-          <select id="client-address-select" class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600"></select>
+          <select id="client-address-select"
+            class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600"></select>
         </div>
 
-        <button id="open-pending-sales-btn" class="w-full text-sm text-blue-400 hover:text-blue-300 font-semibold py-2 px-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2 mt-2">
+        <button id="open-pending-sales-btn"
+          class="w-full text-sm text-blue-400 hover:text-blue-300 font-semibold py-2 px-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg flex items-center justify-center gap-2 mt-2">
           <i class="fas fa-folder-open"></i>
           <span>Ver Ventas Pendientes</span>
         </button>
@@ -422,7 +424,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       <div class="py-4 space-y-2">
         <div class="flex items-center justify-between text-sm">
           <label for="toggle-iva" class="font-medium text-gray-300 cursor-pointer">
-            <input type="checkbox" id="toggle-iva" class="mr-2 h-4 w-4 text-green-600 focus:ring-green-500 rounded border-gray-600" />
+            <input type="checkbox" id="toggle-iva"
+              class="mr-2 h-4 w-4 text-green-600 focus:ring-green-500 rounded border-gray-600" />
             Aplicar IVA (16%)
           </label>
           <span id="cart-tax">$0.00</span>
@@ -439,7 +442,9 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         <button id="cancel-sale-btn" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg">
           Cancelar
         </button>
-        <button id="save-sale-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>
+        <button id="save-sale-btn"
+          class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg disabled:bg-gray-500 disabled:cursor-not-allowed"
+          disabled>
           Guardar
         </button>
         <button id="charge-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg">
@@ -449,9 +454,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
     </div>
   </div>
 
-  <div
-    id="charge-modal"
-    class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
+  <div id="charge-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
     <div class="bg-[#1e293b] rounded-lg shadow-xl w-full max-w-md">
       <div class="p-6 border-b border-gray-700">
         <h2 class="text-2xl font-bold text-white">Procesar Venta</h2>
@@ -466,7 +469,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
         <div id="payment-methods-container" class="space-y-4 mb-4"></div>
 
-        <button id="add-payment-method-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-md mb-4">
+        <button id="add-payment-method-btn"
+          class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-md mb-4">
           <i class="fas fa-plus mr-2"></i> Añadir Método de Pago
         </button>
 
@@ -487,15 +491,11 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
       </div>
       <div class="p-6 bg-gray-800 flex justify-end space-x-4 rounded-b-lg">
-        <button
-          type="button"
-          id="modal-cancel-btn"
+        <button type="button" id="modal-cancel-btn"
           class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">
           Cancelar
         </button>
-        <button
-          type="button"
-          id="modal-confirm-btn"
+        <button type="button" id="modal-confirm-btn"
           class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg">
           Confirmar Venta
         </button>
@@ -512,7 +512,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
       <div class="p-6">
         <form id="add-client-form" class="space-y-4">
           <div>
-            <label for="client-name" class="block text-sm font-medium text-gray-300">Nombre del Cliente <span class="text-red-500">*</span></label>
+            <label for="client-name" class="block text-sm font-medium text-gray-300">Nombre del Cliente <span
+                class="text-red-500">*</span></label>
             <input type="text" id="client-name" name="nombre" required
               class="mt-1 block w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
           </div>
@@ -542,7 +543,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
               class="mt-1 block w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
           </div>
           <div class="flex justify-end space-x-4 pt-4">
-            <button type="button" id="cancel-add-client-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">
+            <button type="button" id="cancel-add-client-btn"
+              class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">
               Cancelar
             </button>
             <button type="submit" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg">
@@ -561,10 +563,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         <button id="close-pending-sales-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
       </div>
       <div class="p-6">
-        <input
-          type="text"
-          id="search-pending-sale"
-          placeholder="Buscar por folio o cliente..."
+        <input type="text" id="search-pending-sale" placeholder="Buscar por folio o cliente..."
           class="w-full bg-gray-700 text-white rounded-md p-2 mb-4 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]" />
         <div class="max-h-[60vh] overflow-y-auto pending-sales-table-wrapper">
           <table class="min-w-full">
@@ -592,10 +591,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
         <button id="close-stock-checker-modal-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
       </div>
       <div class="p-6">
-        <input
-          type="text"
-          id="stock-checker-search-input"
-          placeholder="Buscar por nombre, SKU o código de barras..."
+        <input type="text" id="stock-checker-search-input" placeholder="Buscar por nombre, SKU o código de barras..."
           class="w-full bg-gray-700 text-white rounded-md p-3 mb-4 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]" />
       </div>
       <div id="stock-checker-results" class="flex-1 overflow-y-auto px-6 pb-6">
@@ -603,6 +599,46 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
           Introduce un término de búsqueda para ver el stock.
         </div>
       </div>
+    </div>
+  </div>
+
+  <div id="cashOpeningModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+    <div class="bg-[#1e293b] rounded-lg shadow-xl p-8 w-full max-w-md">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-white">Registrar Apertura de Caja</h3>
+        <button id="closeCashModalBtn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      </div>
+
+      <div id="modal-error-message"
+        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
+        <span class="block sm:inline"></span>
+      </div>
+
+      <form id="cashOpeningForm">
+        <div class="mb-4">
+          <label for="monto_inicial" class="block text-gray-300 text-sm font-bold mb-2">Monto Inicial:</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span>
+            <input type="number" id="monto_inicial" name="monto_inicial" required min="0" step="0.01"
+              class="shadow appearance-none border rounded w-full py-2 px-3 pl-8 bg-gray-700 text-white border-gray-600 leading-tight focus:outline-none focus:ring-[#4f46e5] focus:border-[#4f46e5]"
+              placeholder="0.00">
+          </div>
+        </div>
+        <div class="mb-6">
+          <label for="fecha_apertura" class="block text-gray-300 text-sm font-bold mb-2">Fecha de Apertura:</label>
+          <input type="date" id="fecha_apertura" name="fecha_apertura" required
+            class="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-700 text-white border-gray-600 leading-tight focus:outline-none focus:ring-[#4f46e5] focus:border-[#4f46e5]">
+        </div>
+        <div class="flex items-center justify-end">
+          <button type="button" id="cancelCashOpeningBtn"
+            class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg mr-2">
+            Cancelar
+          </button>
+          <button type="submit" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg">
+            Registrar Apertura
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

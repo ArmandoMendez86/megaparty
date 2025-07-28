@@ -2,7 +2,8 @@
 // Archivo: /app/controllers/LoginController.php
 
 require_once __DIR__ . '/../models/Usuario.php';
-require_once __DIR__ . '/../models/AperturaCaja.php'; // Incluir el nuevo modelo
+// Se elimina la necesidad de incluir el modelo de AperturaCaja
+// require_once __DIR__ . '/../models/AperturaCaja.php'; 
 
 class LoginController {
 
@@ -34,7 +35,7 @@ class LoginController {
                 
                 $_SESSION['user_id'] = $user->id;
                 $_SESSION['user_name'] = $user->nombre;
-                $_SESSION['rol'] = $user->rol; // <-- CORREGIDO: Usar 'rol' en lugar de 'user_role'
+                $_SESSION['rol'] = $user->rol;
                 $_SESSION['branch_id'] = $user->id_sucursal;
 
                 $userData = [
@@ -45,29 +46,14 @@ class LoginController {
                     'id_sucursal' => $user->id_sucursal
                 ];
 
-                // --- LÓGICA DE APERTURA DE CAJA ---
-                $aperturaCajaModel = new AperturaCaja();
-                $fecha_actual = date('Y-m-d'); // Obtiene la fecha actual del servidor
-
-                // Si el usuario es Administrador, verificar si la caja está abierta para hoy
-                if ($user->rol === 'Administrador') {
-                    $apertura_hoy = $aperturaCajaModel->obtenerAperturaPorFecha($user->id_sucursal, $fecha_actual);
-                    if (!$apertura_hoy) {
-                        // La caja no ha sido abierta hoy por este administrador en esta sucursal
-                        http_response_code(200);
-                        echo json_encode([
-                            'success' => true,
-                            'message' => 'Inicio de sesión exitoso. Caja no abierta para hoy.',
-                            'user' => $userData,
-                            'requires_cash_opening' => true // Indicar al frontend que requiere apertura
-                        ]);
-                        return; // Detener la ejecución aquí
-                    }
-                }
-                // --- FIN LÓGICA ---
+                // --- LÓGICA DE APERTURA DE CAJA ELIMINADA ---
+                // El bloque de código que verificaba si la caja estaba abierta para el día
+                // ha sido completamente removido para que el login sea directo.
+                // --- FIN LÓGICA ELIMINADA ---
 
                 http_response_code(200);
-                echo json_encode(['success' => true, 'message' => 'Inicio de sesión exitoso.', 'user' => $userData, 'requires_cash_opening' => false]);
+                // La respuesta JSON ya no incluye la bandera 'requires_cash_opening'.
+                echo json_encode(['success' => true, 'message' => 'Inicio de sesión exitoso.', 'user' => $userData]);
             } else {
                 http_response_code(401);
                 echo json_encode(['success' => false, 'message' => 'Credenciales incorrectas.']);
@@ -114,7 +100,7 @@ class LoginController {
             $userData = [
                 'id' => $_SESSION['user_id'],
                 'nombre' => $_SESSION['user_name'],
-                'rol' => $_SESSION['rol'], // <-- CORREGIDO: Usar 'rol'
+                'rol' => $_SESSION['rol'],
                 'id_sucursal' => $_SESSION['branch_id']
             ];
             echo json_encode(['success' => true, 'user' => $userData]);
