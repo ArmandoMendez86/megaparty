@@ -13,7 +13,7 @@ class AdminController {
         $this->usuarioModel = new Usuario();
         
         // Seguridad: solo administradores pueden usar este controlador
-        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrador') {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Super') {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Acceso no autorizado.']);
             exit;

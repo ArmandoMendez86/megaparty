@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../parciales/verificar_sesion.php';
-if ($_SESSION['rol'] !== 'Administrador') {
+if ($_SESSION['rol'] !== 'Super') {
     header('Location: dashboard.php');
     exit;
 }

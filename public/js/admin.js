@@ -162,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <label class="block text-sm font-medium">Rol</label>
                             <select name="rol" required class="mt-1 block w-full bg-gray-700 rounded-md p-2 border border-gray-600">
                                 <option value="Vendedor" ${usuario?.rol === 'Vendedor' ? 'selected' : ''}>Vendedor</option>
+                                <option value="Super" ${usuario?.rol === 'Super' ? 'selected' : ''}>Superadmin</option>
                                 <option value="Administrador" ${usuario?.rol === 'Administrador' ? 'selected' : ''}>Administrador</option>
                             </select>
                         </div>

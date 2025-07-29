@@ -21,6 +21,24 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentCashCutDate = ""; // CAMBIADO: Una sola fecha para el corte
   let currentInitialCash = 0;
 
+   // 1. Se añade una variable para guardar la impresora, igual que en pos.js
+  let configuredPrinter = null;
+
+  async function fetchPrinterConfig() {
+    try {
+      const response = await fetch(`${BASE_URL}/getPrinterConfig`);
+      const result = await response.json();
+      if (result.success && result.data.impresora_tickets) {
+        configuredPrinter = result.data.impresora_tickets;
+        console.log(`Impresora para reportes lista: ${configuredPrinter}`);
+      } else {
+        console.warn("No hay una impresora configurada para este usuario.");
+      }
+    } catch (error) {
+      console.error("No se pudo cargar la configuración de la impresora.", error);
+    }
+  }
+
   async function loadUsersForFilter() {
     if (!userFilterSelect) {
       return; // No hacer nada si el select no existe (es Vendedor)
@@ -803,8 +821,8 @@ document.addEventListener("DOMContentLoaded", function () {
    * Includes detailed expenses and client payments.
    * @param {string} printerName - The name of the printer to use.
    */
-  async function printCashCutReport(printerName) {
-    if (!qzTrayConnected) {
+  async function printCashCutReport() {
+    if (!configuredPrinter) {
       showToast("No se puede imprimir: QZ Tray está desconectado.", "error");
       return;
     }
@@ -816,7 +834,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const config = qz.configs.create(printerName);
+    const config = qz.configs.create(configuredPrinter);
 
     // OBTENER LA FECHA DIRECTAMENTE DEL INPUT PARA ASEGURAR SINCRONIZACIÓN
     const dateForPrint = cashCutDateInput.value; // CAMBIADO: Una sola fecha
@@ -1032,10 +1050,7 @@ document.addEventListener("DOMContentLoaded", function () {
   generateReportBtn.addEventListener("click", fetchSalesReport);
   exportCsvBtn.addEventListener("click", exportToCsv);
   generateCashCutBtn.addEventListener("click", fetchCashCut);
-  printCashCutBtn.addEventListener("click", () => {
-    const defaultPrinter = "POS-58"; // Reemplaza con el nombre de tu impresora térmica
-    printCashCutReport(defaultPrinter);
-  });
+ printCashCutBtn.addEventListener("click", printCashCutReport);
 
   if (userFilterSelect) { // Si el filtro existe, recargamos el corte al cambiarlo
     userFilterSelect.addEventListener('change', fetchCashCut);
@@ -1060,4 +1075,5 @@ document.addEventListener("DOMContentLoaded", function () {
   fetchSalesReport();
   fetchCashCut(); // Llama a fetchCashCut para cargar la caja inicial al inicio
   loadUsersForFilter();
+  fetchPrinterConfig();
 });

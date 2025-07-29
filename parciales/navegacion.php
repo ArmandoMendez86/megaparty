@@ -4,6 +4,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
 <style>
+  /* --- ESTILOS ORIGINALES --- */
   .tooltip-container {
     position: relative;
   }
@@ -43,29 +44,31 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     padding-right: 0.75rem;
   }
 
-  /* --- NUEVAS REGLAS PARA EL LOGO REDUCIBLE --- */
-  /* Cuando el sidebar está colapsado, se encoge el contenedor del logo */
   #sidebar.w-24 #logo-container {
     width: 2.5rem;
-    /* 40px */
     height: 2.5rem;
-    /* 40px */
     margin-bottom: 0;
   }
 
-  /* También se reduce la altura de toda la sección del encabezado */
   #sidebar.w-24 .sidebar-header {
     height: 6rem;
-    /* 96px, altura más compacta */
+  }
+  
+  #sidebar-overlay {
+    transition: opacity 0.3s ease-in-out;
   }
 </style>
 
+<!-- MODIFICADO: Superposición ahora se oculta en el breakpoint 'lg' -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+<!-- MODIFICADO: Clases de la barra lateral ahora usan el breakpoint 'lg' -->
 <aside id="sidebar"
-  class="bg-[#1e293b] text-gray-300 flex flex-col h-screen w-64 transition-all duration-300 ease-in-out">
-  <!-- Logo y Nombre de Sucursal (MODIFICADO) -->
+  class="bg-[#1e293b] text-gray-300 flex flex-col h-screen w-64 fixed inset-y-0 left-0 z-40 lg:relative lg:translate-x-0 transform -translate-x-full transition-transform duration-300 ease-in-out">
+  
+  <!-- Logo y Nombre de Sucursal -->
   <div
     class="sidebar-header p-6 text-center h-48 flex-shrink-0 flex flex-col justify-center transition-all duration-300 ease-in-out">
-    <!-- Se quitó 'nav-text' y se añadió 'id' y clases de transición -->
     <div id="logo-container"
       class="mx-auto mb-4 w-20 h-20 flex items-center justify-center bg-gray-700 rounded-full transition-all duration-300 ease-in-out">
       <img src="img/logo.jpg" alt="Logo" class="rounded-full">
@@ -84,8 +87,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
       <span class="nav-text ml-3">Ventas</span>
       <span class="tooltip">Ventas</span>
     </a>
-
-
     <a href="gastos.php"
       class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'gastos.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
       <i class="fas fa-file-invoice-dollar fa-fw w-6 h-6"></i>
@@ -98,8 +99,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
       <span class="nav-text ml-3">Reportes</span>
       <span class="tooltip">Reporte de Ventas</span>
     </a>
-    <!-- INICIO: Nuevo enlace unificado para Administración (Solo para Administradores) -->
-    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
+    
+    <?php if (isset($_SESSION['rol']) && ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Super')): ?>
       <a href="dashboard.php"
         class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'dashboard.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
         <i class="fas fa-tachometer-alt fa-fw w-6 h-6"></i>
@@ -118,12 +119,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <span class="nav-text ml-3">Clientes</span>
         <span class="tooltip">Clientes</span>
       </a>
-      <a href="admin.php"
-        class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'admin.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
-        <i class="fas fa-shield-alt fa-fw w-6 h-6"></i>
-        <span class="nav-text ml-3">Gestión</span>
-        <span class="tooltip">Administración</span>
-      </a>
       <a href="configuracion.php"
         class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'configuracion.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
         <i class="fas fa-cog fa-fw w-6 h-6"></i>
@@ -131,30 +126,34 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <span class="tooltip">Configuración</span>
       </a>
     <?php endif; ?>
-    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
+    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Super'): ?>
       <a href="reporte_global.php"
         class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'reporte_global.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
         <i class="fas fa-globe-americas fa-fw w-6 h-6"></i>
         <span class="nav-text ml-3">Reporte Global</span>
         <span class="tooltip">Ventas de Todas las Sucursales</span>
       </a>
+      <a href="admin.php"
+        class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'admin.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
+        <i class="fas fa-shield-alt fa-fw w-6 h-6"></i>
+        <span class="nav-text ml-3">Gestión</span>
+        <span class="tooltip">Administración</span>
+      </a>
     <?php endif; ?>
-    <!-- FIN: Nuevo enlace unificado -->
     <a href="impresoras.php"
       class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'impresoras.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
       <i class="fas fa-print fa-fw w-6 h-6"></i>
       <span class="nav-text ml-3">Impresoras</span>
       <span class="tooltip">Impresoras</span>
     </a>
-
   </nav>
 
   <!-- Sección inferior (fija) -->
   <div class="flex-shrink-0">
-    <!-- Botón para colapsar -->
+    <!-- MODIFICADO: Botón para colapsar ahora se oculta en pantallas menores a 'lg' -->
     <div class="px-4 py-2 border-t border-gray-700">
       <button id="sidebar-toggle"
-        class="tooltip-container flex items-center w-full px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-gray-700">
+        class="tooltip-container hidden lg:flex items-center w-full px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-gray-700">
         <i class="fas fa-chevron-left fa-fw w-6 h-6" id="toggle-icon"></i>
         <span class="nav-text ml-3">Ocultar</span>
         <span class="tooltip">Ocultar Menú</span>
@@ -179,23 +178,18 @@ $currentPage = basename($_SERVER['PHP_SELF']);
   </div>
 </aside>
 
-<!-- SCRIPT DEFINITIVO PARA EVITAR EL "FLICKER" -->
+<!-- Script para la funcionalidad del menú -->
 <script>
   (function () {
     const logoutButton = document.getElementById("logout-button");
-
     const toggleButton = document.getElementById("sidebar-toggle");
     const sidebar = document.getElementById('sidebar');
-    if (sidebar && localStorage.getItem('sidebarCollapsed') === 'true') {
-      // Aplica el estado colapsado sin animación antes de que la página se muestre
+    
+    // MODIFICADO: Condición de JS ahora usa el breakpoint 'lg' (1024px)
+    if (sidebar && window.innerWidth >= 1024 && localStorage.getItem('sidebarCollapsed') === 'true') {
       sidebar.classList.remove('w-64', 'transition-all', 'duration-300', 'ease-in-out');
       sidebar.classList.add('w-24');
-
-      // Oculta los textos
-      const navTexts = document.querySelectorAll('.nav-text');
-      navTexts.forEach(text => text.classList.add('hidden'));
-
-      // Cambia el ícono
+      document.querySelectorAll('.nav-text').forEach(text => text.classList.add('hidden'));
       const toggleIcon = document.getElementById('toggle-icon');
       if (toggleIcon) {
         toggleIcon.classList.remove('fa-chevron-left');

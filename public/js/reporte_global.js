@@ -1,5 +1,5 @@
 // Archivo: /public/js/reporte_global.js
-$(document).ready(function() {
+$(document).ready(function () {
     const apiURL = `${BASE_URL}/getGlobalSalesReport`;
 
     // --- INICIO DE LA CORRECCIÓN ---
@@ -21,10 +21,10 @@ $(document).ready(function() {
             "firstDay": 1
         },
         ranges: {
-           'Hoy': [moment(), moment()], 'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-           'Últimos 7 días': [moment().subtract(6, 'days'), moment()], 'Últimos 30 días': [moment().subtract(29, 'days'), moment()],
-           'Este Mes': [moment().startOf('month'), moment().endOf('month')],
-           'Mes Pasado': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            'Hoy': [moment(), moment()], 'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Últimos 7 días': [moment().subtract(6, 'days'), moment()], 'Últimos 30 días': [moment().subtract(29, 'days'), moment()],
+            'Este Mes': [moment().startOf('month'), moment().endOf('month')],
+            'Mes Pasado': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
         }
     });
 
@@ -62,10 +62,75 @@ $(document).ready(function() {
         "responsive": true,
         "footerCallback": function (row, data, start, end, display) {
             const api = this.api();
-            const floatVal = (i) => typeof i === 'string' ? parseFloat(i.replace(/[^\d.-]/g, '')) : typeof i === 'number' ? i : 0;
-            const pageTotal = api.column(5, { page: 'current' }).data().reduce((a, b) => floatVal(a) + floatVal(b), 0);
-            $(api.column(5).footer()).html(`$${pageTotal.toFixed(2)}`);
-        }
+
+            const floatVal = (i) => {
+                if (typeof i === 'string') {
+                    // Limpia el valor de cualquier caracter que no sea un dígito o un punto.
+                    return parseFloat(i.replace(/[^\d.-]/g, '')) || 0;
+                }
+                return typeof i === 'number' ? i : 0;
+            };
+
+            // Calcula el total solo para las filas visibles que están "Completadas"
+            let totalCompletadas = 0;
+            api.rows({ page: 'current' }).every(function () {
+                const rowData = this.data();
+                // Verifica que el estado sea "Completada" antes de sumar
+                if (rowData.estado === 'Completada') {
+                    totalCompletadas += floatVal(rowData.total);
+                }
+            });
+
+            // Actualiza el pie de la tabla con el nuevo total calculado
+            $(api.column(5).footer()).html(`$${totalCompletadas.toFixed(2)}`);
+        },
+        dom:
+            "<'dt-top-controls'<'left-controls'l><'center-controls'B><'right-controls'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'dt-bottom-controls'<'left-controls'i><'right-controls'p>>",
+        buttons: [
+            /* {
+                extend: 'copyHtml5',
+                text: '<i class="far fa-copy"></i> Copiar',
+                titleAttr: 'Copiar a portapapeles',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6]
+                }
+            }, */
+            {
+                extend: 'excelHtml5',
+                text: '<i class="far fa-file-excel"></i> Excel',
+                titleAttr: 'Exportar a Excel',
+                title: 'Reporte_Global_de_Ventas',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6]
+                }
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="far fa-file-pdf"></i> PDF',
+                titleAttr: 'Exportar a PDF',
+                title: 'Reporte Global de Ventas',
+                orientation: 'landscape', // Hoja horizontal para que quepan las columnas
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6]
+                }
+            },
+            {
+                extend: 'print',
+                text: '<i class="fas fa-print"></i> Imprimir',
+                titleAttr: 'Imprimir tabla',
+                title: 'Reporte Global de Ventas',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6]
+                }
+            }
+        ],
+        "lengthMenu": [
+            [10, 25, 50, -1], // Valores internos para DataTables
+            [10, 25, 50, "Todos"] // Texto que verá el usuario
+        ]
     });
 
     // 3. EVENTOS DEL DATERANGEPICKER (Sin cambios)

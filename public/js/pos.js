@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   let stockSearchTimer;
 
-   // --- INICIO: Referencias para el Modal de Apertura de Caja ---
+  // --- INICIO: Referencias para el Modal de Apertura de Caja ---
   const openCashModalBtn = document.getElementById('openCashModalBtn');
   const cashOpeningModal = document.getElementById('cashOpeningModal');
   const closeCashModalBtn = document.getElementById('closeCashModalBtn');
@@ -168,17 +168,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const stockText = isOutOfStock ? 'Agotado' : `Stock: ${stock}`;
 
       productCard.innerHTML = `
-          <img src="${imageUrl}" alt="${
-        product.nombre
-      }" class="product-card-image">
+          <img src="${imageUrl}" alt="${product.nombre
+        }" class="product-card-image">
           <div class="flex-1 flex flex-col justify-between">
-            <div class="font-bold text-white text-sm mb-1 truncate">${
-              product.nombre
-            }</div>
+            <div class="font-bold text-white text-sm mb-1 truncate">${product.nombre
+        }</div>
             <div class="text-xs text-gray-400 mb-2 product-card-stock ${stockClass}">${stockText}</div>
             <div class="text-lg font-mono text-green-400">$${parseFloat(
-              product.precio_menudeo
-            ).toFixed(2)}</div>
+          product.precio_menudeo
+        ).toFixed(2)}</div>
           </div>
       `;
       productCard.addEventListener("click", () => addProductToCart(product.id));
@@ -227,34 +225,29 @@ document.addEventListener("DOMContentLoaded", function () {
         cartItem.innerHTML = `
             <img src="${imageUrl}" alt="${item.nombre}" class="cart-item-image">
             <div class="flex-1">
-                <p class="text-sm font-semibold text-white truncate">${
-                  item.nombre
-                }</p>
+                <p class="text-sm font-semibold text-white truncate">${item.nombre
+          }</p>
                 <p class="text-xs text-gray-400">
                     ${priceTypeLabel}
-                    <span class="editable-price" data-id="${
-                      item.id
-                    }" data-price="${item.precio_final}">
+                    <span class="editable-price" data-id="${item.id
+          }" data-price="${item.precio_final}">
                         $${parseFloat(item.precio_final).toFixed(2)}
                     </span>
                 </p>
             </div>
             <div class="flex items-center ml-2">
                 <div class="quantity-controls">
-                    <button data-id="${
-                      item.id
-                    }" class="quantity-change" data-action="decrease">-</button>
+                    <button data-id="${item.id
+          }" class="quantity-change" data-action="decrease">-</button>
                     <span>${item.quantity}</span>
-                    <button data-id="${
-                      item.id
-                    }" class="quantity-change" data-action="increase">+</button>
+                    <button data-id="${item.id
+          }" class="quantity-change" data-action="increase">+</button>
                 </div>
                 <div class="text-right font-mono text-base ml-2">$${(
-                  item.quantity * item.precio_final
-                ).toFixed(2)}</div>
-                <button data-id="${
-                  item.id
-                }" class="remove-item-btn text-red-400 hover:text-red-300 p-1 ml-1 rounded-full">
+            item.quantity * item.precio_final
+          ).toFixed(2)}</div>
+                <button data-id="${item.id
+          }" class="remove-item-btn text-red-400 hover:text-red-300 p-1 ml-1 rounded-full">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
@@ -324,8 +317,10 @@ document.addEventListener("DOMContentLoaded", function () {
       product.sucursales.forEach((sucursal) => {
         const stockClass =
           sucursal.stock > 0 ? "text-green-400" : "text-red-400";
+        const formattedStock = parseInt(sucursal.stock).toLocaleString('es-MX');
         const stockText =
-          sucursal.stock > 0 ? `${sucursal.stock} en stock` : "Agotado";
+          sucursal.stock > 0 ? `${formattedStock} en stock` : "Agotado";
+
         html += `
           <li class="flex justify-between items-center text-sm bg-gray-700/50 px-3 py-2 rounded-md">
             <span><i class="fas fa-store mr-2 text-gray-500"></i>${sucursal.nombre}</span>
@@ -656,8 +651,8 @@ document.addEventListener("DOMContentLoaded", function () {
             ${optionsHtml}
         </select>
         <input type="number" step="0.01" value="${amount.toFixed(
-          2
-        )}" placeholder="Monto"
+      2
+    )}" placeholder="Monto"
                class="payment-amount-input w-1/2 bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]" />
         <button class="remove-payment-method-btn text-red-400 hover:text-red-300 p-2">
             <i class="fas fa-times"></i>
@@ -696,8 +691,7 @@ document.addEventListener("DOMContentLoaded", function () {
             selectedClient.limite_credito - selectedClient.deuda_actual;
           if (availableCredit <= 0) {
             showToast(
-              `El cliente '${
-                selectedClient.nombre
+              `El cliente '${selectedClient.nombre
               }' no tiene crédito disponible. Deuda actual: $${selectedClient.deuda_actual.toFixed(
                 2
               )} / Límite: $${selectedClient.limite_credito.toFixed(2)}`,
@@ -820,8 +814,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const availableCredit =
           selectedClient.limite_credito - selectedClient.deuda_actual;
         showToast(
-          `Crédito insuficiente para '${
-            selectedClient.nombre
+          `Crédito insuficiente para '${selectedClient.nombre
           }'. Disponible: $${Math.max(0, availableCredit).toFixed(2)}`,
           "error"
         );
@@ -893,8 +886,7 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedClient.limite_credito - selectedClient.deuda_actual;
       if (creditPaymentAmount > availableCredit) {
         showToast(
-          `Error: El monto de crédito excede el disponible para '${
-            selectedClient.nombre
+          `Error: El monto de crédito excede el disponible para '${selectedClient.nombre
           }'. Disponible: $${availableCredit.toFixed(2)}`,
           "error"
         );
@@ -1117,23 +1109,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td class="py-2 px-4 text-sm">${formattedDate}</td>
                 <td class="py-2 px-4 text-sm">${sale.cliente_nombre}</td>
                 <td class="py-2 px-4 text-right text-sm font-mono">$${parseFloat(
-                  sale.total
-                ).toFixed(2)}</td>
+        sale.total
+      ).toFixed(2)}</td>
                 <td class="py-2 px-4 text-center">
                     <div class="action-buttons-container">
-                        <button data-id="${
-                          sale.id
-                        }" class="load-sale-btn" title="Cargar Venta">
+                        <button data-id="${sale.id
+        }" class="load-sale-btn" title="Cargar Venta">
                             <i class="fas fa-folder-open"></i>
                         </button>
-                        <a href="${BASE_URL}/generateQuote?id=${
-        sale.id
-      }" target="_blank" class="pdf-sale-btn" title="Ver Cotización PDF">
+                        <a href="${BASE_URL}/generateQuote?id=${sale.id
+        }" target="_blank" class="pdf-sale-btn" title="Ver Cotización PDF">
                             <i class="fas fa-file-pdf"></i>
                         </a>
-                        <button data-id="${
-                          sale.id
-                        }" class="delete-sale-btn" title="Eliminar Venta">
+                        <button data-id="${sale.id
+        }" class="delete-sale-btn" title="Eliminar Venta">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -1296,68 +1285,68 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-// --- INICIO: Lógica para el Modal de Apertura de Caja ---
+  // --- INICIO: Lógica para el Modal de Apertura de Caja ---
   function setupCashOpeningModal() {
-      const showModal = () => {
-          fechaInput.value = new Date().toISOString().split('T')[0];
-          montoInput.value = '';
-          modalErrorMessage.classList.add('hidden');
-          cashOpeningModal.classList.remove('hidden');
-      };
+    const showModal = () => {
+      fechaInput.value = new Date().toISOString().split('T')[0];
+      montoInput.value = '';
+      modalErrorMessage.classList.add('hidden');
+      cashOpeningModal.classList.remove('hidden');
+    };
 
-      const hideModal = () => {
-          cashOpeningModal.classList.add('hidden');
-      };
+    const hideModal = () => {
+      cashOpeningModal.classList.add('hidden');
+    };
 
-      const showModalError = (message) => {
-          modalErrorMessage.textContent = message;
-          modalErrorMessage.classList.remove('hidden');
+    const showModalError = (message) => {
+      modalErrorMessage.textContent = message;
+      modalErrorMessage.classList.remove('hidden');
+    }
+
+    openCashModalBtn.addEventListener('click', showModal);
+    closeCashModalBtn.addEventListener('click', hideModal);
+    cancelCashOpeningBtn.addEventListener('click', hideModal);
+
+    cashOpeningForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      modalErrorMessage.classList.add('hidden');
+
+      const monto = montoInput.value;
+      const fecha = fechaInput.value;
+
+      if (monto === '' || parseFloat(monto) < 0 || !fecha) {
+        showModalError('Por favor, ingrese un monto y fecha válidos.');
+        return;
       }
 
-      openCashModalBtn.addEventListener('click', showModal);
-      closeCashModalBtn.addEventListener('click', hideModal);
-      cancelCashOpeningBtn.addEventListener('click', hideModal);
+      const data = {
+        monto_inicial: parseFloat(monto),
+        fecha_apertura: fecha
+      };
 
-      cashOpeningForm.addEventListener('submit', async (event) => {
-          event.preventDefault();
-          modalErrorMessage.classList.add('hidden');
+      try {
+        // Asegúrate que la ruta sea correcta según tu sistema de enrutamiento
+        const response = await fetch(`${BASE_URL}/registrarApertura`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
 
-          const monto = montoInput.value;
-          const fecha = fechaInput.value;
+        const result = await response.json();
 
-          if (monto === '' || parseFloat(monto) < 0 || !fecha) {
-              showModalError('Por favor, ingrese un monto y fecha válidos.');
-              return;
-          }
-
-          const data = {
-              monto_inicial: parseFloat(monto),
-              fecha_apertura: fecha
-          };
-
-          try {
-              // Asegúrate que la ruta sea correcta según tu sistema de enrutamiento
-              const response = await fetch(`${BASE_URL}/registrarApertura`, {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'Accept': 'application/json'
-                  },
-                  body: JSON.stringify(data)
-              });
-
-              const result = await response.json();
-
-              if (response.ok) {
-                  hideModal();
-                  showToast(result.message, 'success');
-              } else {
-                  showModalError(result.message || 'Ocurrió un error inesperado.');
-              }
-          } catch (error) {
-              showModalError('No se pudo conectar con el servidor. Verifique su conexión.');
-          }
-      });
+        if (response.ok) {
+          hideModal();
+          showToast(result.message, 'success');
+        } else {
+          showModalError(result.message || 'Ocurrió un error inesperado.');
+        }
+      } catch (error) {
+        showModalError('No se pudo conectar con el servidor. Verifique su conexión.');
+      }
+    });
   }
   // --- FIN: Lógica para el Modal de Apertura de Caja ---
 
@@ -1493,10 +1482,11 @@ document.addEventListener("DOMContentLoaded", function () {
       cache: true,
     },
     templateSelection: function (data) {
-      if (data.id === "1" && data.text === "Público en General") {
+      /* if (data.id === "1" && data.text === "Público en General") {
         return data.text;
       }
-      return data.original ? data.original.nombre : data.text;
+      return data.original ? data.original.nombre : data.text; */
+      return data.text;
     },
     templateResult: function (data) {
       if (data.loading) return data.text;

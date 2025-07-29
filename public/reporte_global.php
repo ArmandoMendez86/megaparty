@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
 // Solo los administradores pueden ver esta página
-if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrador') {
+if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Super') {
     header('Location: pos.php');
     exit();
 }
@@ -19,6 +19,7 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrador') {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -158,6 +159,34 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrador') {
         .daterangepicker:before {
             border-bottom-color: #1e293b !important;
         }
+
+        .dt-top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        /* Contenedor para los controles inferiores */
+        .dt-bottom-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        /* Alineación específica para cada sección */
+        .dt-top-controls .left-controls {
+            text-align: left;
+        }
+
+        .dt-top-controls .center-controls {
+            text-align: center;
+        }
+
+        .dt-top-controls .right-controls {
+            text-align: right;
+        }
     </style>
 </head>
 
@@ -218,6 +247,13 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrador') {
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script type="text/javascript" src="js/datatable-moment-plugin.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
     <script src="js/rutas.js"></script>
     <script src="js/toast.js"></script>
