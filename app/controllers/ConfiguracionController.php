@@ -80,6 +80,7 @@ class ConfiguracionController {
         }
 
         $id_sucursal = $_SESSION['branch_id'];
+        
         if ($this->sucursalModel->update($id_sucursal, $data)) {
             echo json_encode(['success' => true, 'message' => 'Configuración guardada exitosamente.']);
         } else {
