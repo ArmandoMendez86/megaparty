@@ -14,11 +14,33 @@ document.addEventListener("DOMContentLoaded", function () {
   const generateCashCutBtn = document.getElementById("generate-cash-cut-btn");
   const printCashCutBtn = document.getElementById("print-cash-cut-btn");
   const cashCutResultsContainer = document.getElementById("cash-cut-results");
+  const userFilterSelect = document.getElementById('user-filter-select');
 
   let currentReportData = [];
   let currentCashCutData = null;
   let currentCashCutDate = ""; // CAMBIADO: Una sola fecha para el corte
   let currentInitialCash = 0;
+
+  async function loadUsersForFilter() {
+    if (!userFilterSelect) {
+      return; // No hacer nada si el select no existe (es Vendedor)
+    }
+    try {
+      // Asegúrate de que esta ruta esté definida en tu rutas.js
+      const response = await fetch(`${BASE_URL}/getBranchUsers`);
+      const result = await response.json();
+      if (result.success) {
+        result.data.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.textContent = user.nombre;
+          userFilterSelect.appendChild(option);
+        });
+      }
+    } catch (error) {
+      console.error('Error al cargar usuarios para el filtro:', error);
+    }
+  }
 
 
   if (typeof connectQz === "function") {
@@ -229,41 +251,45 @@ document.addEventListener("DOMContentLoaded", function () {
     // Store date for printing
     currentCashCutDate = date; // CAMBIADO: Almacenar una sola fecha
 
+    let urlParams = `date=${date}`;
+    // Si el filtro de usuario existe y tiene un valor seleccionado, lo añadimos.
+    if (userFilterSelect) {
+      urlParams += `&user_id=${userFilterSelect.value}`;
+    }
+
     try {
       // Fetch initial cash amount for the selected date
       const initialCashResponse = await fetch(`${BASE_URL}/getMontoApertura?date=${date}`);
       const initialCashResult = await initialCashResponse.json();
 
       if (initialCashResult.success) {
-          currentInitialCash = parseFloat(initialCashResult.monto_inicial || 0);
-          initialCashInput.value = currentInitialCash.toFixed(2); // Set input value
-          // Make input read-only if an amount was found (caja ya abierta)
-          if (currentInitialCash > 0) {
-              initialCashInput.readOnly = true;
-              initialCashInput.classList.add('opacity-75', 'cursor-not-allowed');
-          } else {
-              initialCashInput.readOnly = false;
-              initialCashInput.classList.remove('opacity-75', 'cursor-not-allowed');
-          }
-      } else {
-          showToast(initialCashResult.message || 'Error al obtener monto de apertura de caja.', 'error');
-          currentInitialCash = 0;
-          initialCashInput.value = '0.00';
+        currentInitialCash = parseFloat(initialCashResult.monto_inicial || 0);
+        initialCashInput.value = currentInitialCash.toFixed(2); // Set input value
+        // Make input read-only if an amount was found (caja ya abierta)
+        if (currentInitialCash > 0) {
+          initialCashInput.readOnly = true;
+          initialCashInput.classList.add('opacity-75', 'cursor-not-allowed');
+        } else {
           initialCashInput.readOnly = false;
           initialCashInput.classList.remove('opacity-75', 'cursor-not-allowed');
+        }
+      } else {
+        showToast(initialCashResult.message || 'Error al obtener monto de apertura de caja.', 'error');
+        currentInitialCash = 0;
+        initialCashInput.value = '0.00';
+        initialCashInput.readOnly = false;
+        initialCashInput.classList.remove('opacity-75', 'cursor-not-allowed');
       }
 
-      // Fetch cash cut data for the single date
-      const response = await fetch(
-        `${BASE_URL}/getCashCut?date=${date}` // CAMBIADO: Enviar una sola fecha
-      );
+      // Usamos los nuevos parámetros en la URL
+      const response = await fetch(`${BASE_URL}/getCashCut?${urlParams}`);
       const result = await response.json();
       if (result.success) {
-        currentCashCutData = result.data; // Store data for printing
-        renderCashCut(currentCashCutData, date, currentInitialCash); // CAMBIADO: Pasar una sola fecha
+        currentCashCutData = result.data;
+        renderCashCut(currentCashCutData, date, currentInitialCash);
       } else {
         cashCutResultsContainer.innerHTML = `<p class="text-red-500 col-span-full">${result.message}</p>`;
-        currentCashCutData = null; // Clear data if error
+        currentCashCutData = null;
       }
     } catch (error) {
       console.error("Error fetching cash cut or initial cash:", error);
@@ -273,6 +299,21 @@ document.addEventListener("DOMContentLoaded", function () {
       initialCashInput.value = '0.00';
       initialCashInput.readOnly = false;
       initialCashInput.classList.remove('opacity-75', 'cursor-not-allowed');
+    }
+  }
+
+  async function fetchDetailedData(endpoint, date) {
+    let urlParams = `date=${date}`;
+    if (userFilterSelect) {
+      urlParams += `&user_id=${userFilterSelect.value}`;
+    }
+    try {
+      const response = await fetch(`${endpoint}?${urlParams}`);
+      const result = await response.json();
+      return result.success ? result.data : [];
+    } catch (error) {
+      console.error(`Error fetching detailed data from ${endpoint}:`, error);
+      return [];
     }
   }
 
@@ -464,15 +505,14 @@ document.addEventListener("DOMContentLoaded", function () {
       tr.innerHTML = `
                 <td class="py-3 px-6 text-sm">${formattedDate} ${formattedTime}</td>
                 <td class="py-3 px-6 text-sm font-mono ticket-id-cell">#${sale.id
-                  .toString()
-                  .padStart(6, "0")}</td>
-                <td class="py-3 px-6 text-sm font-semibold text-white">${
-                  sale.cliente_nombre
-                }</td>
+          .toString()
+          .padStart(6, "0")}</td>
+                <td class="py-3 px-6 text-sm font-semibold text-white">${sale.cliente_nombre
+        }</td>
                 <td class="py-3 px-6 text-sm">${sale.usuario_nombre}</td>
                 <td class="py-3 px-6 text-right text-sm font-mono text-green-400">$${parseFloat(
-                  sale.total
-                ).toFixed(2)}</td>
+          sale.total
+        ).toFixed(2)}</td>
                 <td class="py-3 px-6 text-sm ${statusClass}">${statusText}</td>
                 <td class="py-3 px-6 text-center">${actionButtonsHtml}</td>
             `;
@@ -492,36 +532,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.querySelectorAll('.print-ticket-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            // CORRECCIÓN: Encuentra el botón más cercano que tiene el data-id
-            const targetButton = event.target.closest('.print-ticket-btn');
-            if (targetButton) {
-              const saleId = targetButton.dataset.id;
-              handlePrintTicket(parseInt(saleId));
-            }
-        });
+      button.addEventListener('click', (event) => {
+        // CORRECCIÓN: Encuentra el botón más cercano que tiene el data-id
+        const targetButton = event.target.closest('.print-ticket-btn');
+        if (targetButton) {
+          const saleId = targetButton.dataset.id;
+          handlePrintTicket(parseInt(saleId));
+        }
+      });
     });
 
     document.querySelectorAll('.view-pdf-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            // CORRECCIÓN: Encuentra el botón más cercano que tiene el data-id
-            const targetButton = event.target.closest('.view-pdf-btn');
-            if (targetButton) {
-              const saleId = targetButton.dataset.id;
-              handleViewPdf(parseInt(saleId));
-            }
-        });
+      button.addEventListener('click', (event) => {
+        // CORRECCIÓN: Encuentra el botón más cercano que tiene el data-id
+        const targetButton = event.target.closest('.view-pdf-btn');
+        if (targetButton) {
+          const saleId = targetButton.dataset.id;
+          handleViewPdf(parseInt(saleId));
+        }
+      });
     });
   }
 
-  /**
-   * Renders the cash cut data into the designated container with a two-column layout.
-   * Includes expandable sections for detailed expenses and client payments.
-   * @param {Object} data - The cash cut data.
-   * @param {string} date - The date for fetching detailed data.
-   * @param {number} initialCash - The initial cash amount for the day.
-   */
-  function renderCashCut(data, date, initialCash) { // CAMBIADO: Un solo parámetro de fecha
+
+  function renderCashCut(data, date, initialCash) {
     const formatCurrency = (value) => `$${parseFloat(value || 0).toFixed(2)}`;
     const formatDate = (dateString) =>
       new Date(dateString).toLocaleDateString("es-MX", {
@@ -559,15 +593,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="flex justify-between items-center">
                             <span>Ventas en Efectivo:</span>
                             <span class="font-mono text-green-300">${formatCurrency(
-                              data.ventas_efectivo
-                            )}</span>
+      data.ventas_efectivo
+    )}</span>
                         </div>
                         <div class="flex flex-col">
                             <div class="flex justify-between items-center cursor-pointer hover:text-gray-200" id="toggle-abonos">
                                 <span>Abonos de Clientes (Efectivo/Transf.):</span>
                                 <span class="font-mono text-green-300">${formatCurrency(
-                                  data.abonos_clientes
-                                )} <i class="fas fa-chevron-down ml-2 transition-transform duration-300"></i></span>
+      data.abonos_clientes
+    )} <i class="fas fa-chevron-down ml-2 transition-transform duration-300"></i></span>
                             </div>
                             <div id="abonos-detail" class="mt-2 pl-4 text-xs text-gray-400 hidden">
                                 <p>Cargando abonos...</p>
@@ -577,8 +611,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="flex justify-between items-center font-bold text-base">
                             <span>Total Ingresos en Caja:</span>
                             <span class="font-mono text-green-400">${formatCurrency(
-                              totalIngresosEfectivo
-                            )}</span>
+      totalIngresosEfectivo
+    )}</span>
                         </div>
                     </div>
                 </div>
@@ -595,8 +629,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             <div class="flex justify-between items-center cursor-pointer hover:text-gray-200" id="toggle-gastos">
                                 <span>Total de Gastos:</span>
                                 <span class="font-mono text-red-300">${formatCurrency(
-                                  data.total_gastos
-                                )} <i class="fas fa-chevron-down ml-2 transition-transform duration-300"></i></span>
+      data.total_gastos
+    )} <i class="fas fa-chevron-down ml-2 transition-transform duration-300"></i></span>
                             </div>
                             <div id="gastos-detail" class="mt-2 pl-4 text-xs text-gray-400 hidden">
                                 <p>Cargando gastos...</p>
@@ -606,9 +640,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     <hr class="border-gray-600 my-2">
                     <div class="flex justify-between items-center pt-4 text-lg font-bold">
                         <span class="text-white">Balance Final en Caja:</span>
-                        <span class="font-mono ${
-                          balanceFinal >= 0 ? "text-green-400" : "text-red-400"
-                        }">${formatCurrency(balanceFinal)}</span>
+                        <span class="font-mono ${balanceFinal >= 0 ? "text-green-400" : "text-red-400"
+      }">${formatCurrency(balanceFinal)}</span>
                     </div>
                 </div>
             </div>
@@ -622,32 +655,32 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="flex justify-between items-center">
                         <span>Total Ventas (Todos los métodos):</span>
                         <span class="font-mono text-gray-300">${formatCurrency(
-                          data.total_ventas
-                        )}</span>
+        data.total_ventas
+      )}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span>Ventas con Tarjeta:</span>
                         <span class="font-mono text-gray-300">${formatCurrency(
-                          data.ventas_tarjeta
-                        )}</span>
+        data.ventas_tarjeta
+      )}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span>Ventas por Transferencia:</span>
                         <span class="font-mono text-gray-300">${formatCurrency(
-                          data.ventas_transferencia
-                        )}</span>
+        data.ventas_transferencia
+      )}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span>Ventas a Crédito:</span>
                         <span class="font-mono text-gray-300">${formatCurrency(
-                          data.ventas_credito
-                        )}</span>
+        data.ventas_credito
+      )}</span>
                     </div>
                 </div>
             </div>
         `;
 
-    // Add event listeners for toggling details AFTER the HTML is rendered
+
     const toggleGastos = document.getElementById("toggle-gastos");
     const gastosDetail = document.getElementById("gastos-detail");
     const toggleAbonos = document.getElementById("toggle-abonos");
@@ -661,7 +694,7 @@ document.addEventListener("DOMContentLoaded", function () {
           !gastosDetail.classList.contains("hidden") &&
           gastosDetail.dataset.loaded !== "true"
         ) {
-          const expenses = await fetchDetailedExpenses(date); // CAMBIADO: Pasar una sola fecha
+          const expenses = await fetchDetailedData(`${BASE_URL}/getDetailedExpenses`, date);
           gastosDetail.innerHTML = ""; // Clear loading message
           if (expenses.length > 0) {
             expenses.forEach((exp) => {
@@ -670,13 +703,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 "flex justify-between items-center py-1 border-b border-gray-600 last:border-b-0";
               p.innerHTML = `
                                 <span>${formatDate(
-                                  exp.fecha
-                                )} - ${exp.descripcion.substring(0, 30)}${
-                exp.descripcion.length > 30 ? "..." : ""
-              }</span>
+                exp.fecha
+              )} - ${exp.descripcion.substring(0, 30)}${exp.descripcion.length > 30 ? "..." : ""
+                }</span>
                                 <span class="font-mono text-red-300">${formatCurrency(
-                                  exp.monto
-                                )}</span>
+                  exp.monto
+                )}</span>
                             `;
               gastosDetail.appendChild(p);
             });
@@ -684,7 +716,7 @@ document.addEventListener("DOMContentLoaded", function () {
             gastosDetail.innerHTML =
               '<p class="text-center py-2">No se encontraron gastos para este período.</p>';
           }
-          gastosDetail.dataset.loaded = "true"; // Mark as loaded
+          gastosDetail.dataset.loaded = "true";
         }
       });
     }
@@ -697,9 +729,7 @@ document.addEventListener("DOMContentLoaded", function () {
           !abonosDetail.classList.contains("hidden") &&
           abonosDetail.dataset.loaded !== "true"
         ) {
-          const payments = await fetchDetailedClientPayments(
-            date // CAMBIADO: Pasar una sola fecha
-          );
+          const payments = await fetchDetailedData(`${BASE_URL}/getDetailedClientPayments`, date);
           abonosDetail.innerHTML = ""; // Clear loading message
           if (payments.length > 0) {
             payments.forEach((pay) => {
@@ -707,12 +737,11 @@ document.addEventListener("DOMContentLoaded", function () {
               p.className =
                 "flex justify-between items-center py-1 border-b border-gray-600 last:border-b-0";
               p.innerHTML = `
-                                <span>${formatDateTime(pay.fecha)} - ${
-                pay.cliente_nombre
-              } (${pay.metodo_pago})</span>
+                                <span>${formatDateTime(pay.fecha)} - ${pay.cliente_nombre
+                } (${pay.metodo_pago})</span>
                                 <span class="font-mono text-green-300">${formatCurrency(
-                                  pay.monto
-                                )}</span>
+                  pay.monto
+                )}</span>
                             `;
               abonosDetail.appendChild(p);
             });
@@ -792,34 +821,33 @@ document.addEventListener("DOMContentLoaded", function () {
     // OBTENER LA FECHA DIRECTAMENTE DEL INPUT PARA ASEGURAR SINCRONIZACIÓN
     const dateForPrint = cashCutDateInput.value; // CAMBIADO: Una sola fecha
 
-    // Fetch detailed data if not already loaded (using date from input)
-    const detailedExpenses = await fetchDetailedExpenses(dateForPrint); // CAMBIADO
-    const detailedClientPayments = await fetchDetailedClientPayments(dateForPrint); // CAMBIADO
+    const detailedExpenses = await fetchDetailedData(`${BASE_URL}/getDetailedExpenses`, dateForPrint);
+    const detailedClientPayments = await fetchDetailedData(`${BASE_URL}/getDetailedClientPayments`, dateForPrint);
 
     // --- Funciones de ayuda para el formato (reutilizadas y adaptadas) ---
     const formatCurrency = (value) => `$${parseFloat(value || 0).toFixed(2)}`;
-    
+
     // FUNCIÓN PARA FORMATO DD/MM/YYYY
     const formatInputDateToDDMMYYYY = (dateString) => {
-        const parts = dateString.split('-'); // dateString es YYYY-MM-DD
-        if (parts.length === 3) {
-            const year = parts[0];
-            const month = parts[1];
-            const day = parts[2];
-            return `${day}/${month}/${year}`;
-        }
-        return dateString; // Retorna original si no tiene el formato esperado
+      const parts = dateString.split('-'); // dateString es YYYY-MM-DD
+      if (parts.length === 3) {
+        const year = parts[0];
+        const month = parts[1];
+        const day = parts[2];
+        return `${day}/${month}/${year}`;
+      }
+      return dateString; // Retorna original si no tiene el formato esperado
     };
 
     // FUNCIÓN PARA FORMATO DD/MM/YYYY HH:MM (para fechas de DB o new Date())
     const formatDBDateTimeToDDMMYYYYHHMM = (dateString) => {
-        const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
 
 
@@ -1009,6 +1037,10 @@ document.addEventListener("DOMContentLoaded", function () {
     printCashCutReport(defaultPrinter);
   });
 
+  if (userFilterSelect) { // Si el filtro existe, recargamos el corte al cambiarlo
+    userFilterSelect.addEventListener('change', fetchCashCut);
+  }
+
   // --- Carga Inicial ---
   const now = new Date();
   const year = now.getFullYear();
@@ -1027,4 +1059,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
   fetchSalesReport();
   fetchCashCut(); // Llama a fetchCashCut para cargar la caja inicial al inicio
+  loadUsersForFilter();
 });

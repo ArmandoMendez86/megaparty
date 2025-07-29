@@ -71,7 +71,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
       <img src="img/logo.jpg" alt="Logo" class="rounded-full">
     </div>
     <h2 id="sucursal-nombre" class="text-xl font-semibold text-white nav-text">
-      Mega Party Gdl
+      <?php echo isset($_SESSION['branch_name']) ? htmlspecialchars($_SESSION['branch_name']) : 'Mi Sucursal'; ?>
     </h2>
   </div>
 
@@ -129,6 +129,14 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <i class="fas fa-cog fa-fw w-6 h-6"></i>
         <span class="nav-text ml-3">Configuración</span>
         <span class="tooltip">Configuración</span>
+      </a>
+    <?php endif; ?>
+    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
+      <a href="reporte_global.php"
+        class="tooltip-container flex items-center px-4 py-2.5 text-sm font-medium rounded-lg <?php echo ($currentPage == 'reporte_global.php') ? 'bg-[#4f46e5] text-white' : 'hover:bg-gray-700'; ?>">
+        <i class="fas fa-globe-americas fa-fw w-6 h-6"></i>
+        <span class="nav-text ml-3">Reporte Global</span>
+        <span class="tooltip">Ventas de Todas las Sucursales</span>
       </a>
     <?php endif; ?>
     <!-- FIN: Nuevo enlace unificado -->

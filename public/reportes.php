@@ -73,15 +73,21 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
                 <!-- Filtros -->
                 <div class="flex flex-wrap items-end gap-4 mb-6">
                     <div>
-                        <label for="start-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha de Inicio</label>
-                        <input type="date" id="start-date" class="bg-gray-700 text-white rounded-md p-2 border border-gray-600">
+                        <label for="start-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha de
+                            Inicio</label>
+                        <input type="date" id="start-date"
+                            class="bg-gray-700 text-white rounded-md p-2 border border-gray-600">
                     </div>
                     <div>
                         <label for="end-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha de Fin</label>
-                        <input type="date" id="end-date" class="bg-gray-700 text-white rounded-md p-2 border border-gray-600">
+                        <input type="date" id="end-date"
+                            class="bg-gray-700 text-white rounded-md p-2 border border-gray-600">
                     </div>
-                    <button id="generate-report-btn" class="bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-2 px-4 rounded-lg">Generar Reporte</button>
-                    <button id="export-csv-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                    <button id="generate-report-btn"
+                        class="bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-2 px-4 rounded-lg">Generar
+                        Reporte</button>
+                    <button id="export-csv-btn"
+                        class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg flex items-center">
                         <i class="fas fa-file-csv mr-2"></i> Exportar a CSV
                     </button>
                 </div>
@@ -103,7 +109,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
                         </thead>
                         <tbody id="report-table-body" class="divide-y divide-gray-700">
                             <tr>
-                                <td colspan="7" class="text-center py-10 text-gray-500">Seleccione un rango de fechas y genere un reporte.</td>
+                                <td colspan="7" class="text-center py-10 text-gray-500">Seleccione un rango de fechas y
+                                    genere un reporte.</td>
                             </tr>
                             <!-- Ejemplo de fila con Ticket ID de color. En tu JS, cuando generes las filas,
                                  asegúrate de añadir la clase 'ticket-id-cell' a la celda del Ticket ID. -->
@@ -131,15 +138,32 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
                 <!-- Filtros para el Corte de Caja -->
                 <div class="flex flex-wrap items-end gap-4 mb-6">
                     <div>
-                        <label for="cash-cut-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha del Corte</label>
-                        <input type="date" id="cash-cut-date" class="bg-gray-700 text-white rounded-md p-2 border border-gray-600">
+                        <label for="cash-cut-date" class="block text-sm font-medium text-gray-300 mb-1">Fecha del
+                            Corte</label>
+                        <input type="date" id="cash-cut-date"
+                            class="bg-gray-700 text-white rounded-md p-2 border border-gray-600">
                     </div>
                     <div>
-                        <label for="initial-cash" class="block text-sm font-medium text-gray-300 mb-1">Caja Inicial</label>
-                        <input type="number" id="initial-cash" value="0.00" step="0.01" class="bg-gray-700 text-white rounded-md p-2 border border-gray-600 w-32">
+                        <label for="initial-cash" class="block text-sm font-medium text-gray-300 mb-1">Caja
+                            Inicial</label>
+                        <input type="number" id="initial-cash" value="0.00" step="0.01"
+                            class="bg-gray-700 text-white rounded-md p-2 border border-gray-600 w-32">
                     </div>
-                    <button id="generate-cash-cut-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Generar Corte de Caja</button>
-                    <button id="print-cash-cut-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'Administrador'): ?>
+                        <div>
+                            <label for="user-filter-select" class="block text-sm font-medium text-gray-300 mb-1">Filtrar por
+                                Usuario</label>
+                            <select id="user-filter-select"
+                                class="bg-gray-700 text-white rounded-md p-2 border border-gray-600">
+                                <option value="all">General (Toda la Sucursal)</option>
+                            </select>
+                        </div>
+                    <?php endif; ?>
+                    <button id="generate-cash-cut-btn"
+                        class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Generar Corte de
+                        Caja</button>
+                    <button id="print-cash-cut-btn"
+                        class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg flex items-center">
                         <i class="fas fa-print mr-2"></i> Imprimir Corte
                     </button>
                 </div>

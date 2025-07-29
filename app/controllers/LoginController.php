@@ -2,12 +2,15 @@
 // Archivo: /app/controllers/LoginController.php
 
 require_once __DIR__ . '/../models/Usuario.php';
+require_once __DIR__ . '/../models/Sucursal.php';
 // Se elimina la necesidad de incluir el modelo de AperturaCaja
 // require_once __DIR__ . '/../models/AperturaCaja.php'; 
 
-class LoginController {
+class LoginController
+{
 
-    public function login() {
+    public function login()
+    {
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -32,11 +35,19 @@ class LoginController {
                 if (session_status() == PHP_SESSION_NONE) {
                     session_start();
                 }
-                
+
                 $_SESSION['user_id'] = $user->id;
                 $_SESSION['user_name'] = $user->nombre;
                 $_SESSION['rol'] = $user->rol;
                 $_SESSION['branch_id'] = $user->id_sucursal;
+
+                // --- LÓGICA AÑADIDA ---
+                // 2. Obtenemos el nombre de la sucursal y lo guardamos en la sesión.
+                $sucursalModel = new Sucursal();
+                $sucursal = $sucursalModel->getById($user->id_sucursal);
+                $nombreSucursal = $sucursal ? $sucursal['nombre'] : 'Sucursal Desconocida';
+                $_SESSION['branch_name'] = $nombreSucursal;
+                // --- FIN LÓGICA AÑADIDA ---
 
                 $userData = [
                     'id' => $user->id,
@@ -45,6 +56,8 @@ class LoginController {
                     'rol' => $user->rol,
                     'id_sucursal' => $user->id_sucursal
                 ];
+
+
 
                 // --- LÓGICA DE APERTURA DE CAJA ELIMINADA ---
                 // El bloque de código que verificaba si la caja estaba abierta para el día
@@ -67,9 +80,10 @@ class LoginController {
     /**
      * Cierra la sesión del usuario.
      */
-    public function logout() {
+    public function logout()
+    {
         header('Content-Type: application/json');
-        
+
         // Destruimos todas las variables de sesión.
         $_SESSION = array();
 
@@ -77,9 +91,14 @@ class LoginController {
         // Nota: ¡Esto destruirá la sesión, y no solo los datos de la sesión!
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000,
-                $params["path"], $params["domain"],
-                $params["secure"], $params["httponly"]
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
             );
         }
 
@@ -92,7 +111,8 @@ class LoginController {
     /**
      * Verifica si existe una sesión activa y devuelve los datos del usuario.
      */
-    public function checkSession() {
+    public function checkSession()
+    {
         header('Content-Type: application/json');
 
         if (isset($_SESSION['user_id'])) {

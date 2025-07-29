@@ -134,4 +134,22 @@ class UsuarioController
             echo json_encode(['success' => false, 'message' => 'Error al eliminar el usuario: ' . $e->getMessage()]);
         }
     }
+
+    public function getUsersByCurrentBranch()
+    {
+        header('Content-Type: application/json');
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['branch_id'])) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Acceso no autorizado.']);
+            return;
+        }
+
+        try {
+            $usuarios = $this->usuarioModel->getUsersByBranch($_SESSION['branch_id']);
+            echo json_encode(['success' => true, 'data' => $usuarios]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Error al obtener usuarios de la sucursal: ' . $e->getMessage()]);
+        }
+    }
 }

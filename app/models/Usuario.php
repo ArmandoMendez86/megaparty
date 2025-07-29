@@ -167,4 +167,16 @@ class Usuario {
         $stmt->bindParam(':impresora_tickets', $printerName);
         return $stmt->execute();
     }
+
+     public function getUsersByBranch($id_sucursal) {
+        $query = "SELECT id, nombre 
+                  FROM " . $this->table_name . " 
+                  WHERE id_sucursal = :id_sucursal AND activo = 1
+                  ORDER BY nombre ASC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id_sucursal', $id_sucursal, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

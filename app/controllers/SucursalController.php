@@ -78,7 +78,7 @@ class SucursalController {
         }
     }
 
-    public function update() {
+   /*  public function update() {
         header('Content-Type: application/json');
         if (!$this->isAdmin()) { $this->unauthorized(); }
 
@@ -100,7 +100,7 @@ class SucursalController {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
         }
-    }
+    } */
 
     public function delete() {
         header('Content-Type: application/json');
