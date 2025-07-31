@@ -29,6 +29,15 @@ if ($_SESSION['rol'] !== 'Super') {
     <?php include_once __DIR__ . '/../parciales/navegacion.php'; ?>
 
     <main class="flex-1 p-6 overflow-y-auto">
+
+     <!-- MODIFICADO: Encabezado ahora se oculta en el breakpoint 'lg' -->
+      <header class="lg:hidden flex items-center justify-between bg-[#1e293b] p-4 shadow-md flex-shrink-0">
+        <button id="mobile-menu-button" class="text-white focus:outline-none">
+          <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <h1 class="text-lg font-bold text-white">Punto de Venta</h1>
+        <div class="w-8"></div>
+      </header>
         <div class="max-w-7xl mx-auto">
             <h1 class="text-3xl font-bold text-white mb-6">Administración del Sistema</h1>
 

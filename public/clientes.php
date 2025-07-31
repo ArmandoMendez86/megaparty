@@ -1,8 +1,9 @@
 <?php
-require_once __DIR__ . '/../parciales/verificar_sesion.php'; 
+require_once __DIR__ . '/../parciales/verificar_sesion.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,22 +12,53 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .modal-overlay { background-color: rgba(0, 0, 0, 0.75); }
-        .modal-body { max-height: 70vh; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #718096; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.75);
+        }
+
+        .modal-body {
+            max-height: 70vh;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
     </style>
 </head>
+
 <body class="bg-[#0f172a] text-gray-300">
 
     <div class="flex h-screen">
-       <?php include_once '../parciales/navegacion.php'; ?>
+        <?php include_once '../parciales/navegacion.php'; ?>
 
         <!-- Contenido Principal -->
         <main class="flex-1 p-8 overflow-y-auto">
+            <!-- MODIFICADO: Encabezado ahora se oculta en el breakpoint 'lg' -->
+            <header class="lg:hidden flex items-center justify-between bg-[#1e293b] p-4 shadow-md flex-shrink-0">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                <h1 class="text-lg font-bold text-white">Punto de Venta</h1>
+                <div class="w-8"></div>
+            </header>
             <div class="flex justify-between items-center mb-8">
                 <h1 class="text-3xl font-bold text-white">Gestión de Clientes</h1>
                 <button id="add-client-btn" class="bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-2 px-4 rounded-lg flex items-center">
@@ -67,7 +99,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
             <form id="client-form" class="p-6">
                 <div class="modal-body overflow-y-auto pr-4">
                     <input type="hidden" id="client-id" name="id">
-                    
+
                     <!-- Datos del Cliente -->
                     <h3 class="text-lg font-semibold text-white mb-4 border-b border-gray-600 pb-2">Datos Personales</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -108,8 +140,8 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
                             </label>
                         </div>
                         <div id="limite-credito-container" class="hidden">
-                             <label for="limite_credito" class="block text-sm font-medium text-gray-300 mb-1">Límite de Crédito ($)</label>
-                             <input type="number" step="0.01" id="limite_credito" name="limite_credito" value="0.00" class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
+                            <label for="limite_credito" class="block text-sm font-medium text-gray-300 mb-1">Límite de Crédito ($)</label>
+                            <input type="number" step="0.01" id="limite_credito" name="limite_credito" value="0.00" class="w-full bg-gray-700 text-white rounded-md p-2 border border-gray-600 focus:ring-[#4f46e5] focus:border-[#4f46e5]">
                         </div>
                     </div>
 
@@ -130,7 +162,7 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
             </form>
         </div>
     </div>
-    
+
     <!-- Modal para Registrar Abono -->
     <div id="payment-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
         <div class="bg-[#1e293b] rounded-lg shadow-xl w-full max-w-md">
@@ -177,5 +209,26 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
     <script src="js/toast.js"></script>
     <script src="js/confirm.js"></script>
     <script src="js/clientes.js"></script>
+     <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+
+      if (mobileMenuButton && sidebar && overlay) {
+        mobileMenuButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sidebar.classList.remove('-translate-x-full');
+          overlay.classList.remove('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+          sidebar.classList.add('-translate-x-full');
+          overlay.classList.add('hidden');
+        });
+      }
+    });
+  </script>
 </body>
+
 </html>

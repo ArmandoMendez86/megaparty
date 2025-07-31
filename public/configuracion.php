@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . '/../parciales/verificar_sesion.php'; 
+require_once __DIR__ . '/../parciales/verificar_sesion.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,6 +45,14 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
 
         <!-- Contenido Principal -->
         <main class="flex-1 p-8 overflow-y-auto">
+            <!-- MODIFICADO: Encabezado ahora se oculta en el breakpoint 'lg' -->
+            <header class="lg:hidden flex items-center justify-between bg-[#1e293b] p-4 shadow-md flex-shrink-0">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                <h1 class="text-lg font-bold text-white">Punto de Venta</h1>
+                <div class="w-8"></div>
+            </header>
             <h1 class="text-3xl font-bold text-white mb-8">Configuración de la Sucursal</h1>
 
             <div class="bg-[#1e293b] p-6 rounded-lg max-w-2xl mx-auto">
@@ -84,6 +93,26 @@ require_once __DIR__ . '/../parciales/verificar_sesion.php';
     <script src="js/rutas.js"></script>
     <script src="js/toast.js"></script>
     <script src="js/configuracion.js"></script>
+     <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+
+      if (mobileMenuButton && sidebar && overlay) {
+        mobileMenuButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sidebar.classList.remove('-translate-x-full');
+          overlay.classList.remove('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+          sidebar.classList.add('-translate-x-full');
+          overlay.classList.add('hidden');
+        });
+      }
+    });
+  </script>
 </body>
 
 </html>

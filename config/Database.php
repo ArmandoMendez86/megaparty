@@ -5,7 +5,7 @@ class Database
 {
 
     //Localhost
-     /* private $host = 'localhost';
+    /*  private $host = 'localhost';
      private $db_name = 'multisucursal';
      private $username = 'root';
      private $password = 'linux';
